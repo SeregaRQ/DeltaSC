@@ -34,6 +34,7 @@ local Modules = {
     "Aim",
     "Player",
     "Settings",
+    "Info",
 }
 
 local function LoadModule(name)
