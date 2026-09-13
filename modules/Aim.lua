@@ -357,17 +357,21 @@ end
 --//==================================================
 
 local AimHolding = false
+local LockedTarget = nil
 
 PS.Connect(UserInputService.InputBegan, function(input, processed)
     if processed then return end
     if input.UserInputType == Enum.UserInputType.MouseButton2 then
         AimHolding = true
+        -- Захватываем ближайшую цель в момент зажатия ПКМ
+        LockedTarget = GetClosestTarget()
     end
 end)
 
 PS.Connect(UserInputService.InputEnded, function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton2 then
         AimHolding = false
+        LockedTarget = nil
     end
 end)
 
@@ -379,13 +383,26 @@ PS.Connect(RunService.RenderStepped, function()
     if not PS.Active then return end
     if not A.Enabled or not AimHolding then return end
 
-    local target = GetClosestTarget()
-    if not target then return end
+    -- Если цель ещё жива — держим её
+    if LockedTarget then
+        local char = LockedTarget.Parent
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if not char or not hum or hum.Health <= 0 or not LockedTarget.Parent then
+            LockedTarget = nil
+        end
+    end
 
-    local aimPos = target.Position
+    -- Если цель потеряна — ищем новую
+    if not LockedTarget then
+        LockedTarget = GetClosestTarget()
+    end
+
+    if not LockedTarget then return end
+
+    local aimPos = LockedTarget.Position
 
     if A.Prediction then
-        local char = target.Parent
+        local char = LockedTarget.Parent
         local root = char and char:FindFirstChild("HumanoidRootPart")
         if root then
             aimPos = aimPos + (root.AssemblyLinearVelocity * A.PredictionStrength)
