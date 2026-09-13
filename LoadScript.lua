@@ -34,6 +34,7 @@ local Modules = {
     "Aim",
     "Player",
     "World",
+    "Misc",
     "Settings",
     "Info",
 }
