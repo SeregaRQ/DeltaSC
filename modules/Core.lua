@@ -91,6 +91,7 @@ PS.GUI = ScreenGui
 --// СОЗДАНИЕ TOGGLE
 function PS.CreateToggle(parent, text, order, default, callback)
     local holder = Instance.new("Frame")
+    holder.Name = "Toggle_" .. tostring(order)
     holder.Size = UDim2.new(1, -10, 0, 42)
     holder.BackgroundColor3 = Colors.Panel
     holder.BorderSizePixel = 0
@@ -124,6 +125,11 @@ function PS.CreateToggle(parent, text, order, default, callback)
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(1, 0)
     btnCorner.Parent = button
+
+    local btnStroke = Instance.new("UIStroke")
+    btnStroke.Color = Color3.fromRGB(60, 65, 80)
+    btnStroke.Thickness = 1
+    btnStroke.Parent = button
 
     local circle = Instance.new("Frame")
     circle.Size = UDim2.fromOffset(16, 16)
@@ -159,6 +165,7 @@ end
 --// СОЗДАНИЕ SLIDER
 function PS.CreateSlider(parent, text, order, min, max, default, callback)
     local holder = Instance.new("Frame")
+    holder.Name = "Slider_" .. tostring(order)
     holder.Size = UDim2.new(1, -10, 0, 55)
     holder.BackgroundColor3 = Colors.Panel
     holder.BorderSizePixel = 0
@@ -254,9 +261,10 @@ function PS.CreateSlider(parent, text, order, min, max, default, callback)
     return { Set = SetValue, Get = function() return value end }
 end
 
---// СОЗДАНИЕ SECTION (заголовок)
+--// СОЗДАНИЕ SECTION
 function PS.CreateSection(parent, title, order)
     local section = Instance.new("TextLabel")
+    section.Name = "Section_" .. tostring(order)
     section.Size = UDim2.new(1, -10, 0, 30)
     section.BackgroundColor3 = Colors.Panel2
     section.BorderSizePixel = 0
@@ -328,6 +336,7 @@ local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, 145, 1, 0)
 Sidebar.BackgroundColor3 = Colors.Sidebar
 Sidebar.BorderSizePixel = 0
+Sidebar.ClipsDescendants = true
 Sidebar.Parent = Main
 
 local SidebarCorner = Instance.new("UICorner")
@@ -419,31 +428,34 @@ PS.CreatePage("Misc")
 PS.CreatePage("Settings")
 PS.CreatePage("Info")
 
+--// SIDEBAR LAYOUT
+local sidebarLayout = Instance.new("UIListLayout")
+sidebarLayout.Padding = UDim.new(0, 4)
+sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+sidebarLayout.Parent = Sidebar
+
+local sidebarPad = Instance.new("UIPadding")
+sidebarPad.PaddingTop = UDim.new(0, 75)
+sidebarPad.PaddingLeft = UDim.new(0, 8)
+sidebarPad.PaddingRight = UDim.new(0, 8)
+sidebarPad.Parent = Sidebar
+
 --// ВКЛАДКИ SIDEBAR
 PS.Tabs = {}
 
 function PS.CreateTab(name, order)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 38)
+    btn.Size = UDim2.new(1, 0, 0, 32)
     btn.BackgroundColor3 = Colors.AccentDark
     btn.BackgroundTransparency = 1
     btn.BorderSizePixel = 0
     btn.Text = name
     btn.TextColor3 = Colors.SubText
-    btn.TextSize = 12
+    btn.TextSize = 11
     btn.Font = Enum.Font.GothamMedium
     btn.AutoButtonColor = false
     btn.LayoutOrder = math.floor(order or 0)
     btn.Parent = Sidebar
-
-    -- позиция по LayoutOrder
-    local layout = Sidebar:FindFirstChildOfClass("UIListLayout")
-    if not layout then
-        layout = Instance.new("UIListLayout")
-        layout.Padding = UDim.new(0, 0)
-        layout.SortOrder = Enum.SortOrder.LayoutOrder
-        layout.Parent = Sidebar
-    end
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 8)
@@ -465,19 +477,6 @@ function PS.CreateTab(name, order)
 
     return btn
 end
-
--- Sidebar layout для табов
-local sidebarLayout = Instance.new("UIListLayout")
-sidebarLayout.Padding = UDim.new(0, 8)
-sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
-sidebarLayout.Parent = Sidebar
-
--- Паддинг для табов
-local sidebarPad = Instance.new("UIPadding")
-sidebarPad.PaddingTop = UDim.new(0, 80)
-sidebarPad.PaddingLeft = UDim.new(0, 10)
-sidebarPad.PaddingRight = UDim.new(0, 10)
-sidebarPad.Parent = Sidebar
 
 PS.CreateTab("Player", 1)
 PS.CreateTab("Aim", 2)
