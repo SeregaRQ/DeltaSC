@@ -108,13 +108,19 @@ PS.CreateSlider(WorldPage, "World Time", 145, 1, 24, W.Time, function(v)
 end)
 
 --//==================================================
---// REMOVE GRASS (через замену материала)
+--// REMOVE GRASS (ЧЕРЕЗ ЗАМЕНУ МАТЕРИАЛА)
 --//==================================================
 
-local function RemoveGrassTerrain()
+local function ReplaceGrassWithAsphalt()
     local Terrain = workspace.Terrain
-    local region = Region3.new(Vector3.new(-2048, -100, -2048), Vector3.new(2048, 500, 2048))
-    
+    -- Регион задаем с запасом, чтобы покрыть карту
+    -- Важно: координаты должны быть кратны 4 (размер вокселя)
+    local region = Region3.new(
+        Vector3.new(-2048, -100, -2048), 
+        Vector3.new(2048, 500, 2048)
+    )
+
+    -- replaceMaterial заменяет траву на асфальт в указанном регионе
     pcall(function()
         Terrain:ReplaceMaterial(region, 4, Enum.Material.Grass, Enum.Material.Asphalt)
     end)
@@ -122,9 +128,9 @@ end
 
 PS.CreateToggle(WorldPage, "Remove Grass", 210, W.RemoveGrass, function(v)
     W.RemoveGrass = v
-
+    
     if v then
-        RemoveGrassTerrain()
+        ReplaceGrassWithAsphalt()
     end
 end)
 
