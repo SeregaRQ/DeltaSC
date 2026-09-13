@@ -336,7 +336,6 @@ local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, 145, 1, 0)
 Sidebar.BackgroundColor3 = Colors.Sidebar
 Sidebar.BorderSizePixel = 0
-Sidebar.ClipsDescendants = true
 Sidebar.Parent = Main
 
 local SidebarCorner = Instance.new("UICorner")
@@ -430,15 +429,15 @@ PS.CreatePage("Info")
 
 --// SIDEBAR LAYOUT
 local sidebarLayout = Instance.new("UIListLayout")
-sidebarLayout.Padding = UDim.new(0, 3)
+sidebarLayout.Padding = UDim.new(0, 6)
 sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
 sidebarLayout.Parent = Sidebar
 
 local sidebarPad = Instance.new("UIPadding")
-sidebarPad.PaddingTop = UDim.new(0, 70)
-sidebarPad.PaddingLeft = UDim.new(0, 8)
-sidebarPad.PaddingRight = UDim.new(0, 8)
-sidebarPad.PaddingBottom = UDim.new(0, 10)
+sidebarPad.PaddingTop = UDim.new(0, 78)
+sidebarPad.PaddingLeft = UDim.new(0, 10)
+sidebarPad.PaddingRight = UDim.new(0, 10)
+sidebarPad.PaddingBottom = UDim.new(0, 8)
 sidebarPad.Parent = Sidebar
 
 --// ВКЛАДКИ SIDEBAR
@@ -446,20 +445,20 @@ PS.Tabs = {}
 
 function PS.CreateTab(name, order)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.Size = UDim2.new(1, 0, 0, 35)
     btn.BackgroundColor3 = Colors.AccentDark
     btn.BackgroundTransparency = 1
     btn.BorderSizePixel = 0
     btn.Text = name
     btn.TextColor3 = Colors.SubText
-    btn.TextSize = 10
+    btn.TextSize = 11
     btn.Font = Enum.Font.GothamMedium
     btn.AutoButtonColor = false
     btn.LayoutOrder = math.floor(order or 0)
     btn.Parent = Sidebar
 
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 6)
+    corner.CornerRadius = UDim.new(0, 7)
     corner.Parent = btn
 
     PS.Tabs[name] = btn
