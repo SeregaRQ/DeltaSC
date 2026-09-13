@@ -15,32 +15,30 @@ local LocalPlayer = PS.LocalPlayer
 local Camera = PS.Camera
 local RunService = PS.RunService
 local UserInputService = PS.UserInputService
-local TweenService = PS.TweenService
 
 --//==================================================
---// НАСТРОЙКИ
+--// НАСТРОЙКИ (всё с сохранением в PS.Aim)
 --//==================================================
 
 PS.Aim = PS.Aim or {}
 local A = PS.Aim
 
-A.Enabled = A.Enabled or false
-A.Key = A.Key or Enum.UserInputType.MouseButton2
-A.Smooth = A.Smooth or 0.15
-A.FOV = A.FOV or 180
-A.CircleFOV = A.CircleFOV or false
-A.Wallcheck = A.Wallcheck or true
-A.IgnoreFriends = A.IgnoreFriends or true
-A.Prediction = A.Prediction or false
-A.PredictionStrength = A.PredictionStrength or 0.12
-A.TargetBone = A.TargetBone or "Head"
-A.TargetHighlight = A.TargetHighlight or false
-A.NoRecoil = A.NoRecoil or false
-A.Zoom = A.Zoom or false
-A.ZoomStrength = A.ZoomStrength or 60
-A.ZoomKey = A.ZoomKey or "V"
-A.Crosshair = A.Crosshair or false
-A.CrosshairSize = A.CrosshairSize or 40
+A.Enabled             = A.Enabled or false
+A.Smooth              = A.Smooth or 0.15
+A.FOV                 = A.FOV or 180
+A.CircleFOV           = A.CircleFOV or false
+A.Wallcheck           = A.Wallcheck or true
+A.IgnoreFriends       = A.IgnoreFriends or true
+A.Prediction          = A.Prediction or false
+A.PredictionStrength  = A.PredictionStrength or 0.12
+A.TargetBone          = A.TargetBone or "Head"
+A.TargetHighlight     = A.TargetHighlight or false
+A.NoRecoil            = A.NoRecoil or false
+A.Zoom                = A.Zoom or false
+A.ZoomStrength        = A.ZoomStrength or 60
+A.ZoomKey             = A.ZoomKey or "V"
+A.Crosshair           = A.Crosshair or false
+A.CrosshairSize       = A.CrosshairSize or 40
 
 --//==================================================
 --// ЗАГОЛОВОК
@@ -58,7 +56,7 @@ title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = AimPage
 
 --//==================================================
---// 1. AIMBOT TOGGLE
+--// 1. AIMBOT (RMB HOLD)
 --//==================================================
 
 PS.CreateToggle(AimPage, "Aimbot (RMB Hold)", 45, A.Enabled, function(v)
@@ -66,142 +64,68 @@ PS.CreateToggle(AimPage, "Aimbot (RMB Hold)", 45, A.Enabled, function(v)
 end)
 
 --//==================================================
---// 2. AIMBOT KEYBIND
+--// 2. SMOOTH
 --//==================================================
 
-local kbHolder = Instance.new("Frame")
-kbHolder.Size = UDim2.new(1, -10, 0, 42)
-kbHolder.Position = UDim2.fromOffset(5, 95)
-kbHolder.BackgroundColor3 = Colors.Panel
-kbHolder.BorderSizePixel = 0
-kbHolder.Parent = AimPage
-
-local kbCorner = Instance.new("UICorner")
-kbCorner.CornerRadius = UDim.new(0, 9)
-kbCorner.Parent = kbHolder
-
-local kbLabel = Instance.new("TextLabel")
-kbLabel.Size = UDim2.new(1, -100, 1, 0)
-kbLabel.Position = UDim2.fromOffset(14, 0)
-kbLabel.BackgroundTransparency = 1
-kbLabel.Text = "Aimbot Key"
-kbLabel.TextColor3 = Colors.Text
-kbLabel.TextSize = 13
-kbLabel.Font = Enum.Font.GothamMedium
-kbLabel.TextXAlignment = Enum.TextXAlignment.Left
-kbLabel.Parent = kbHolder
-
-local kbBtn = Instance.new("TextButton")
-kbBtn.Size = UDim2.fromOffset(80, 26)
-kbBtn.Position = UDim2.new(1, -90, 0.5, -13)
-kbBtn.BackgroundColor3 = Colors.Panel2
-kbBtn.BorderSizePixel = 0
-kbBtn.Text = tostring(A.Key.Name or "RMB")
-kbBtn.TextColor3 = Colors.Accent
-kbBtn.TextSize = 12
-kbBtn.Font = Enum.Font.GothamBold
-kbBtn.AutoButtonColor = false
-kbBtn.Parent = kbHolder
-
-local kbBtnCorner = Instance.new("UICorner")
-kbBtnCorner.CornerRadius = UDim.new(0, 6)
-kbBtnCorner.Parent = kbBtn
-
-local listeningAimKey = false
-
-PS.Connect(kbBtn.MouseButton1Click, function()
-    listeningAimKey = true
-    kbBtn.Text = "..."
-    kbBtn.TextColor3 = Colors.Orange
-end)
-
-PS.Connect(UserInputService.InputBegan, function(input, processed)
-    if not listeningAimKey then return end
-    if processed then return end
-
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        A.Key = Enum.UserInputType.MouseButton1
-        kbBtn.Text = "LMB"
-    elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
-        A.Key = Enum.UserInputType.MouseButton2
-        kbBtn.Text = "RMB"
-    elseif input.UserInputType == Enum.UserInputType.MouseButton3 then
-        A.Key = Enum.UserInputType.MouseButton3
-        kbBtn.Text = "MMB"
-    elseif input.KeyCode ~= Enum.KeyCode.Unknown then
-        A.Key = input.KeyCode
-        kbBtn.Text = input.KeyCode.Name
-    else
-        return
-    end
-
-    kbBtn.TextColor3 = Colors.Accent
-    listeningAimKey = false
-end)
-
---//==================================================
---// 3. SMOOTH SLIDER
---//==================================================
-
-PS.CreateSlider(AimPage, "Smooth", 145, 0.01, 1, A.Smooth, function(v)
+PS.CreateSlider(AimPage, "Smooth", 95, 0.01, 1, A.Smooth, function(v)
     A.Smooth = v
 end)
 
 --//==================================================
---// 4. FOV RADIUS SLIDER
+--// 3. FOV RADIUS
 --//==================================================
 
-PS.CreateSlider(AimPage, "FOV Radius", 210, 30, 500, A.FOV, function(v)
+PS.CreateSlider(AimPage, "FOV Radius", 160, 30, 500, A.FOV, function(v)
     A.FOV = v
 end)
 
 --//==================================================
---// 5. CIRCLE FOV TOGGLE
+--// 4. CIRCLE FOV
 --//==================================================
 
-PS.CreateToggle(AimPage, "Circle FOV", 275, A.CircleFOV, function(v)
+PS.CreateToggle(AimPage, "Circle FOV", 225, A.CircleFOV, function(v)
     A.CircleFOV = v
 end)
 
 --//==================================================
---// 6. WALLCHECK
+--// 5. WALLCHECK
 --//==================================================
 
-PS.CreateToggle(AimPage, "Wallcheck", 325, A.Wallcheck, function(v)
+PS.CreateToggle(AimPage, "Wallcheck", 275, A.Wallcheck, function(v)
     A.Wallcheck = v
 end)
 
 --//==================================================
---// 7. FRIEND IGNORE
+--// 6. FRIEND IGNORE
 --//==================================================
 
-PS.CreateToggle(AimPage, "Friend Ignore", 375, A.IgnoreFriends, function(v)
+PS.CreateToggle(AimPage, "Friend Ignore", 325, A.IgnoreFriends, function(v)
     A.IgnoreFriends = v
 end)
 
 --//==================================================
---// 8. PREDICTION
+--// 7. PREDICTION
 --//==================================================
 
-PS.CreateToggle(AimPage, "Prediction", 425, A.Prediction, function(v)
+PS.CreateToggle(AimPage, "Prediction", 375, A.Prediction, function(v)
     A.Prediction = v
 end)
 
 --//==================================================
---// 9. PREDICTION STRENGTH
+--// 8. PREDICTION STRENGTH
 --//==================================================
 
-PS.CreateSlider(AimPage, "Prediction Strength", 475, 0.01, 0.5, A.PredictionStrength, function(v)
+PS.CreateSlider(AimPage, "Prediction Strength", 425, 0.01, 0.5, A.PredictionStrength, function(v)
     A.PredictionStrength = v
 end)
 
 --//==================================================
---// 10. TARGET BONE (Head / Body)
+--// 9. TARGET BONE (Head / Body)
 --//==================================================
 
 local boneHolder = Instance.new("Frame")
 boneHolder.Size = UDim2.new(1, -10, 0, 42)
-boneHolder.Position = UDim2.fromOffset(5, 540)
+boneHolder.Position = UDim2.fromOffset(5, 490)
 boneHolder.BackgroundColor3 = Colors.Panel
 boneHolder.BorderSizePixel = 0
 boneHolder.Parent = AimPage
@@ -253,44 +177,44 @@ CreateBoneBtn("Head", -200, "Head")
 CreateBoneBtn("Body", -135, "HumanoidRootPart")
 
 --//==================================================
---// 11. TARGET HIGHLIGHT
+--// 10. TARGET HIGHLIGHT
 --//==================================================
 
-PS.CreateToggle(AimPage, "Target Highlight", 590, A.TargetHighlight, function(v)
+PS.CreateToggle(AimPage, "Target Highlight", 540, A.TargetHighlight, function(v)
     A.TargetHighlight = v
 end)
 
 --//==================================================
---// 12. NO RECOIL
+--// 11. NO RECOIL
 --//==================================================
 
-PS.CreateToggle(AimPage, "No Recoil", 640, A.NoRecoil, function(v)
+PS.CreateToggle(AimPage, "No Recoil", 590, A.NoRecoil, function(v)
     A.NoRecoil = v
 end)
 
 --//==================================================
---// 13. ZOOM TOGGLE
+--// 12. ZOOM
 --//==================================================
 
-PS.CreateToggle(AimPage, "Zoom", 690, A.Zoom, function(v)
+PS.CreateToggle(AimPage, "Zoom", 640, A.Zoom, function(v)
     A.Zoom = v
 end)
 
 --//==================================================
---// 14. ZOOM STRENGTH
+--// 13. ZOOM STRENGTH
 --//==================================================
 
-PS.CreateSlider(AimPage, "Zoom Strength", 740, 0, 100, A.ZoomStrength, function(v)
+PS.CreateSlider(AimPage, "Zoom Strength", 690, 0, 100, A.ZoomStrength, function(v)
     A.ZoomStrength = v
 end)
 
 --//==================================================
---// 15. ZOOM KEYBIND
+--// 14. ZOOM KEYBIND
 --//==================================================
 
 local zHolder = Instance.new("Frame")
 zHolder.Size = UDim2.new(1, -10, 0, 42)
-zHolder.Position = UDim2.fromOffset(5, 805)
+zHolder.Position = UDim2.fromOffset(5, 755)
 zHolder.BackgroundColor3 = Colors.Panel
 zHolder.BorderSizePixel = 0
 zHolder.Parent = AimPage
@@ -346,10 +270,10 @@ PS.Connect(UserInputService.InputBegan, function(input, processed)
 end)
 
 --//==================================================
---// 16. CROSSHAIR TOGGLE
+--// 15. CROSSHAIR
 --//==================================================
 
-PS.CreateToggle(AimPage, "Crosshair", 855, A.Crosshair, function(v)
+PS.CreateToggle(AimPage, "Crosshair", 805, A.Crosshair, function(v)
     A.Crosshair = v
     if PS.CrosshairFrame then
         PS.CrosshairFrame.Visible = v
@@ -357,10 +281,10 @@ PS.CreateToggle(AimPage, "Crosshair", 855, A.Crosshair, function(v)
 end)
 
 --//==================================================
---// 17. CROSSHAIR SIZE
+--// 16. CROSSHAIR SIZE
 --//==================================================
 
-PS.CreateSlider(AimPage, "Crosshair Size", 905, 20, 80, A.CrosshairSize, function(v)
+PS.CreateSlider(AimPage, "Crosshair Size", 855, 20, 80, A.CrosshairSize, function(v)
     A.CrosshairSize = v
     if PS.CrosshairFrame then
         PS.CrosshairFrame.Size = UDim2.fromOffset(v, v)
@@ -429,32 +353,20 @@ local function GetClosestTarget()
 end
 
 --//==================================================
---// ЛОГИКА: AIMBOT HOLD
+--// ЛОГИКА: AIMBOT HOLD (RMB)
 --//==================================================
 
 local AimHolding = false
 
 PS.Connect(UserInputService.InputBegan, function(input, processed)
     if processed then return end
-    if A.Key == Enum.UserInputType.MouseButton2 and input.UserInputType == Enum.UserInputType.MouseButton2 then
-        AimHolding = true
-    elseif A.Key == Enum.UserInputType.MouseButton1 and input.UserInputType == Enum.UserInputType.MouseButton1 then
-        AimHolding = true
-    elseif A.Key == Enum.UserInputType.MouseButton3 and input.UserInputType == Enum.UserInputType.MouseButton3 then
-        AimHolding = true
-    elseif input.KeyCode == A.Key then
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
         AimHolding = true
     end
 end)
 
 PS.Connect(UserInputService.InputEnded, function(input)
-    if A.Key == Enum.UserInputType.MouseButton2 and input.UserInputType == Enum.UserInputType.MouseButton2 then
-        AimHolding = false
-    elseif A.Key == Enum.UserInputType.MouseButton1 and input.UserInputType == Enum.UserInputType.MouseButton1 then
-        AimHolding = false
-    elseif A.Key == Enum.UserInputType.MouseButton3 and input.UserInputType == Enum.UserInputType.MouseButton3 then
-        AimHolding = false
-    elseif input.KeyCode == A.Key then
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
         AimHolding = false
     end
 end)
@@ -472,7 +384,6 @@ PS.Connect(RunService.RenderStepped, function()
 
     local aimPos = target.Position
 
-    -- Prediction
     if A.Prediction then
         local char = target.Parent
         local root = char and char:FindFirstChild("HumanoidRootPart")
@@ -634,12 +545,10 @@ end)
 
 local zoomHolding = false
 local zoomRestore = nil
-local listeningZoomKey2 = false
 
 PS.Connect(UserInputService.InputBegan, function(input, processed)
     if processed then return end
     if not A.Zoom then return end
-
     if input.KeyCode ~= Enum.KeyCode.Unknown and input.KeyCode.Name == A.ZoomKey then
         local cam = workspace.CurrentCamera
         if cam and not zoomHolding then
@@ -651,7 +560,6 @@ end)
 
 PS.Connect(UserInputService.InputEnded, function(input)
     if not A.Zoom then return end
-
     if input.KeyCode ~= Enum.KeyCode.Unknown and input.KeyCode.Name == A.ZoomKey then
         zoomHolding = false
         local cam = workspace.CurrentCamera
@@ -707,26 +615,32 @@ local dotCorner = Instance.new("UICorner")
 dotCorner.CornerRadius = UDim.new(1, 0)
 dotCorner.Parent = dot
 
-local function MakeLine(x, y, sx, sy)
-    local l = Instance.new("Frame")
-    l.Size = UDim2.fromOffset(sx, sy)
-    l.Position = UDim2.new(x, 0, y, 0)
-    l.BackgroundColor3 = Colors.Accent
-    l.BorderSizePixel = 0
-    l.Parent = crossFrame
-    return l
-end
-
-local lineUp = MakeLine(0.5, 0, 2, 10)
+local lineUp = Instance.new("Frame")
+lineUp.Size = UDim2.fromOffset(2, 10)
 lineUp.Position = UDim2.new(0.5, -1, 0, 0)
+lineUp.BackgroundColor3 = Colors.Accent
+lineUp.BorderSizePixel = 0
+lineUp.Parent = crossFrame
 
-local lineDown = MakeLine(0.5, 1, 2, 10)
+local lineDown = Instance.new("Frame")
+lineDown.Size = UDim2.fromOffset(2, 10)
 lineDown.Position = UDim2.new(0.5, -1, 1, -10)
+lineDown.BackgroundColor3 = Colors.Accent
+lineDown.BorderSizePixel = 0
+lineDown.Parent = crossFrame
 
-local lineLeft = MakeLine(0, 0.5, 10, 2)
+local lineLeft = Instance.new("Frame")
+lineLeft.Size = UDim2.fromOffset(10, 2)
 lineLeft.Position = UDim2.new(0, 0, 0.5, -1)
+lineLeft.BackgroundColor3 = Colors.Accent
+lineLeft.BorderSizePixel = 0
+lineLeft.Parent = crossFrame
 
-local lineRight = MakeLine(1, 0.5, 10, 2)
+local lineRight = Instance.new("Frame")
+lineRight.Size = UDim2.fromOffset(10, 2)
 lineRight.Position = UDim2.new(1, -10, 0.5, -1)
+lineRight.BackgroundColor3 = Colors.Accent
+lineRight.BorderSizePixel = 0
+lineRight.Parent = crossFrame
 
 print("[PotatoScript] Aim загружен")
