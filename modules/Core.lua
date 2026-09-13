@@ -542,20 +542,22 @@ PS.Connect(UserInputService.InputEnded, function(input)
     end
 end)
 
---// RIGHT SHIFT TOGGLE
+--// MENU TOGGLE
 
 local shiftHeld = false
 
 PS.Connect(UserInputService.InputBegan, function(input, processed)
     if processed then return end
-    if input.KeyCode == Enum.KeyCode.RightShift and not shiftHeld then
+    local key = (PS.Config and PS.Config.MenuKey) or Enum.KeyCode.RightShift
+    if input.KeyCode == key and not shiftHeld then
         shiftHeld = true
         Main.Visible = not Main.Visible
     end
 end)
 
 PS.Connect(UserInputService.InputEnded, function(input)
-    if input.KeyCode == Enum.KeyCode.RightShift then
+    local key = (PS.Config and PS.Config.MenuKey) or Enum.KeyCode.RightShift
+    if input.KeyCode == key then
         shiftHeld = false
     end
 end)
