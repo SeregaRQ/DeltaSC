@@ -16,9 +16,7 @@ local Camera = PS.Camera
 local RunService = PS.RunService
 local UserInputService = PS.UserInputService
 
---//==================================================
---// НАСТРОЙКИ (всё с сохранением в PS.Aim)
---//==================================================
+--// НАСТРОЙКИ
 
 PS.Aim = PS.Aim or {}
 local A = PS.Aim
@@ -40,9 +38,7 @@ A.ZoomKey             = A.ZoomKey or "V"
 A.Crosshair           = A.Crosshair or false
 A.CrosshairSize       = A.CrosshairSize or 40
 
---//==================================================
 --// ЗАГОЛОВОК
---//==================================================
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -10, 0, 28)
@@ -55,73 +51,18 @@ title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = AimPage
 
---//==================================================
---// 1. AIMBOT (RMB HOLD)
---//==================================================
+--// UI
 
-PS.CreateToggle(AimPage, "Aimbot (RMB Hold)", 45, A.Enabled, function(v)
-    A.Enabled = v
-end)
+PS.CreateToggle(AimPage, "Aimbot (RMB Hold)", 45, A.Enabled, function(v) A.Enabled = v end)
+PS.CreateSlider(AimPage, "Smooth", 95, 0.01, 1, A.Smooth, function(v) A.Smooth = v end)
+PS.CreateSlider(AimPage, "FOV Radius", 160, 30, 500, A.FOV, function(v) A.FOV = v end)
+PS.CreateToggle(AimPage, "Circle FOV", 225, A.CircleFOV, function(v) A.CircleFOV = v end)
+PS.CreateToggle(AimPage, "Wallcheck", 275, A.Wallcheck, function(v) A.Wallcheck = v end)
+PS.CreateToggle(AimPage, "Friend Ignore", 325, A.IgnoreFriends, function(v) A.IgnoreFriends = v end)
+PS.CreateToggle(AimPage, "Prediction", 375, A.Prediction, function(v) A.Prediction = v end)
+PS.CreateSlider(AimPage, "Prediction Strength", 425, 0.01, 0.5, A.PredictionStrength, function(v) A.PredictionStrength = v end)
 
---//==================================================
---// 2. SMOOTH
---//==================================================
-
-PS.CreateSlider(AimPage, "Smooth", 95, 0.01, 1, A.Smooth, function(v)
-    A.Smooth = v
-end)
-
---//==================================================
---// 3. FOV RADIUS
---//==================================================
-
-PS.CreateSlider(AimPage, "FOV Radius", 160, 30, 500, A.FOV, function(v)
-    A.FOV = v
-end)
-
---//==================================================
---// 4. CIRCLE FOV
---//==================================================
-
-PS.CreateToggle(AimPage, "Circle FOV", 225, A.CircleFOV, function(v)
-    A.CircleFOV = v
-end)
-
---//==================================================
---// 5. WALLCHECK
---//==================================================
-
-PS.CreateToggle(AimPage, "Wallcheck", 275, A.Wallcheck, function(v)
-    A.Wallcheck = v
-end)
-
---//==================================================
---// 6. FRIEND IGNORE
---//==================================================
-
-PS.CreateToggle(AimPage, "Friend Ignore", 325, A.IgnoreFriends, function(v)
-    A.IgnoreFriends = v
-end)
-
---//==================================================
---// 7. PREDICTION
---//==================================================
-
-PS.CreateToggle(AimPage, "Prediction", 375, A.Prediction, function(v)
-    A.Prediction = v
-end)
-
---//==================================================
---// 8. PREDICTION STRENGTH
---//==================================================
-
-PS.CreateSlider(AimPage, "Prediction Strength", 425, 0.01, 0.5, A.PredictionStrength, function(v)
-    A.PredictionStrength = v
-end)
-
---//==================================================
---// 9. TARGET BONE (Head / Body)
---//==================================================
+--// Target Bone
 
 local boneHolder = Instance.new("Frame")
 boneHolder.Size = UDim2.new(1, -10, 0, 42)
@@ -158,9 +99,9 @@ local function CreateBoneBtn(text, xPos, boneName)
     b.AutoButtonColor = false
     b.Parent = boneHolder
 
-    local bCorner = Instance.new("UICorner")
-    bCorner.CornerRadius = UDim.new(0, 6)
-    bCorner.Parent = b
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, 6)
+    c.Parent = b
 
     PS.Connect(b.MouseButton1Click, function()
         A.TargetBone = boneName
@@ -176,41 +117,12 @@ end
 CreateBoneBtn("Head", -200, "Head")
 CreateBoneBtn("Body", -135, "HumanoidRootPart")
 
---//==================================================
---// 10. TARGET HIGHLIGHT
---//==================================================
+PS.CreateToggle(AimPage, "Target Highlight", 540, A.TargetHighlight, function(v) A.TargetHighlight = v end)
+PS.CreateToggle(AimPage, "No Recoil", 590, A.NoRecoil, function(v) A.NoRecoil = v end)
+PS.CreateToggle(AimPage, "Zoom", 640, A.Zoom, function(v) A.Zoom = v end)
+PS.CreateSlider(AimPage, "Zoom Strength", 690, 0, 100, A.ZoomStrength, function(v) A.ZoomStrength = v end)
 
-PS.CreateToggle(AimPage, "Target Highlight", 540, A.TargetHighlight, function(v)
-    A.TargetHighlight = v
-end)
-
---//==================================================
---// 11. NO RECOIL
---//==================================================
-
-PS.CreateToggle(AimPage, "No Recoil", 590, A.NoRecoil, function(v)
-    A.NoRecoil = v
-end)
-
---//==================================================
---// 12. ZOOM
---//==================================================
-
-PS.CreateToggle(AimPage, "Zoom", 640, A.Zoom, function(v)
-    A.Zoom = v
-end)
-
---//==================================================
---// 13. ZOOM STRENGTH
---//==================================================
-
-PS.CreateSlider(AimPage, "Zoom Strength", 690, 0, 100, A.ZoomStrength, function(v)
-    A.ZoomStrength = v
-end)
-
---//==================================================
---// 14. ZOOM KEYBIND
---//==================================================
+--// Zoom Keybind
 
 local zHolder = Instance.new("Frame")
 zHolder.Size = UDim2.new(1, -10, 0, 42)
@@ -269,21 +181,10 @@ PS.Connect(UserInputService.InputBegan, function(input, processed)
     end
 end)
 
---//==================================================
---// 15. CROSSHAIR
---//==================================================
-
 PS.CreateToggle(AimPage, "Crosshair", 805, A.Crosshair, function(v)
     A.Crosshair = v
-    if PS.CrosshairFrame then
-        PS.CrosshairFrame.Visible = v
-    end
+    if PS.CrosshairFrame then PS.CrosshairFrame.Visible = v end
 end)
-
---//==================================================
---// 16. CROSSHAIR SIZE
---//==================================================
-
 PS.CreateSlider(AimPage, "Crosshair Size", 855, 20, 80, A.CrosshairSize, function(v)
     A.CrosshairSize = v
     if PS.CrosshairFrame then
@@ -292,9 +193,7 @@ PS.CreateSlider(AimPage, "Crosshair Size", 855, 20, 80, A.CrosshairSize, functio
     end
 end)
 
---//==================================================
---// ЛОГИКА: TARGET FINDER
---//==================================================
+--// ЛОГИКА
 
 local function IsFriend(player)
     local ok, friend = pcall(function()
@@ -306,12 +205,9 @@ end
 local function IsVisible(part)
     local origin = Camera.CFrame.Position
     local dir = part.Position - origin
-    local dist = dir.Magnitude
-
     local params = RaycastParams.new()
     params.FilterType = Enum.RaycastFilterType.Exclude
     params.FilterDescendantsInstances = { LocalPlayer.Character, Camera }
-
     local result = workspace:Raycast(origin, dir, params)
     if not result then return true end
     if result.Instance:IsDescendantOf(part.Parent) then return true end
@@ -327,14 +223,10 @@ local function GetClosestTarget()
             local char = p.Character
             local hum = char and char:FindFirstChildOfClass("Humanoid")
             local part = char and char:FindFirstChild(A.TargetBone)
-
             if char and hum and hum.Health > 0 and part then
                 if not (A.IgnoreFriends and IsFriend(p)) then
                     local visible = true
-                    if A.Wallcheck then
-                        visible = IsVisible(part)
-                    end
-
+                    if A.Wallcheck then visible = IsVisible(part) end
                     if visible then
                         local sPos, onScreen = Camera:WorldToViewportPoint(part.Position)
                         if onScreen and sPos.Z > 0 then
@@ -351,10 +243,6 @@ local function GetClosestTarget()
     end
     return closest
 end
-
---//==================================================
---// ЛОГИКА: AIMBOT HOLD (RMB)
---//==================================================
 
 local AimHolding = false
 local LockedTarget = nil
@@ -374,15 +262,10 @@ PS.Connect(UserInputService.InputEnded, function(input)
     end
 end)
 
---//==================================================
---// ЛОГИКА: AIMBOT UPDATE
---//==================================================
-
 PS.Connect(RunService.RenderStepped, function()
     if not PS.Active then return end
     if not A.Enabled or not AimHolding then return end
 
-    -- Проверяем жив ли залоченный таргет
     if LockedTarget then
         local char = LockedTarget.Parent
         local hum = char and char:FindFirstChildOfClass("Humanoid")
@@ -391,7 +274,6 @@ PS.Connect(RunService.RenderStepped, function()
         end
     end
 
-    -- Если нет цели — ищем новую
     if not LockedTarget then
         LockedTarget = GetClosestTarget()
     end
@@ -399,8 +281,6 @@ PS.Connect(RunService.RenderStepped, function()
     if not LockedTarget then return end
 
     local aimPos = LockedTarget.Position
-
-    -- Prediction (опционально)
     if A.Prediction then
         local char = LockedTarget.Parent
         local root = char and char:FindFirstChild("HumanoidRootPart")
@@ -409,17 +289,14 @@ PS.Connect(RunService.RenderStepped, function()
         end
     end
 
-    -- ЖЁСТКО смотрим на цель (мгновенно, без Lerp)
     local camPos = Camera.CFrame.Position
     Camera.CFrame = CFrame.lookAt(camPos, aimPos)
 end)
 
---//==================================================
---// ЛОГИКА: FOV CIRCLE
---//==================================================
+--// FOV CIRCLE
 
 local fovCircle = Instance.new("Frame")
-fovCircle.Name = "FOVCircle"
+fovCircle.Name = "PotatoFOVCircle"
 fovCircle.AnchorPoint = Vector2.new(0.5, 0.5)
 fovCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
 fovCircle.Size = UDim2.fromOffset(A.FOV * 2, A.FOV * 2)
@@ -427,6 +304,7 @@ fovCircle.BackgroundTransparency = 1
 fovCircle.Visible = false
 fovCircle.ZIndex = 10
 fovCircle.Parent = PS.GUI
+PS.Track(fovCircle)
 
 local fovCorner = Instance.new("UICorner")
 fovCorner.CornerRadius = UDim.new(1, 0)
@@ -444,18 +322,16 @@ fovGlow.Thickness = 6
 fovGlow.Transparency = 0.85
 fovGlow.Parent = fovCircle
 
-local currentFOVColor = Colors.Accent
-local currentGlowColor = Colors.Accent
-local currentThickness = 2
+local cFOV = Colors.Accent
+local cGlow = Colors.Accent
+local cThick = 2
 local pulsePhase = 0
 
 PS.Connect(RunService.RenderStepped, function(dt)
     if not PS.Active then return end
-
     fovCircle.Visible = A.CircleFOV
     fovCircle.Size = UDim2.fromOffset(A.FOV * 2, A.FOV * 2)
     fovCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
-
     if not fovCircle.Visible then return end
 
     local hasTarget = false
@@ -464,37 +340,35 @@ PS.Connect(RunService.RenderStepped, function(dt)
         if found then hasTarget = true end
     end
 
-    local targetColor = hasTarget and Color3.fromRGB(255, 65, 75) or Colors.Accent
-    local targetGlow = hasTarget and Color3.fromRGB(255, 80, 90) or Colors.Accent
-    local targetThick = hasTarget and 2.5 or 2
+    local tColor = hasTarget and Color3.fromRGB(255, 65, 75) or Colors.Accent
+    local tGlow = hasTarget and Color3.fromRGB(255, 80, 90) or Colors.Accent
+    local tThick = hasTarget and 2.5 or 2
 
-    local lerpSpeed = math.clamp(dt * 12, 0, 1)
-    currentFOVColor = currentFOVColor:Lerp(targetColor, lerpSpeed)
-    currentGlowColor = currentGlowColor:Lerp(targetGlow, lerpSpeed)
-    currentThickness = currentThickness + (targetThick - currentThickness) * lerpSpeed
+    local lerp = math.clamp(dt * 12, 0, 1)
+    cFOV = cFOV:Lerp(tColor, lerp)
+    cGlow = cGlow:Lerp(tGlow, lerp)
+    cThick = cThick + (tThick - cThick) * lerp
 
     if hasTarget then
         pulsePhase = pulsePhase + dt * 8
         local pulse = math.sin(pulsePhase) * 0.5 + 0.5
-        fovStroke.Thickness = currentThickness + (pulse * 0.8)
+        fovStroke.Thickness = cThick + (pulse * 0.8)
         fovStroke.Transparency = 0
         fovGlow.Thickness = 6 + (pulse * 4)
         fovGlow.Transparency = 0.7 + (pulse * 0.2)
     else
         pulsePhase = 0
-        fovStroke.Thickness = currentThickness
+        fovStroke.Thickness = cThick
         fovStroke.Transparency = 0.15
         fovGlow.Thickness = 6
         fovGlow.Transparency = 0.85
     end
 
-    fovStroke.Color = currentFOVColor
-    fovGlow.Color = currentGlowColor
+    fovStroke.Color = cFOV
+    fovGlow.Color = cGlow
 end)
 
---//==================================================
---// ЛОГИКА: TARGET HIGHLIGHT
---//==================================================
+--// TARGET HIGHLIGHT
 
 local highlightObj = nil
 
@@ -515,6 +389,7 @@ PS.Connect(RunService.RenderStepped, function()
         if not highlightObj or highlightObj.Parent ~= char then
             if highlightObj then highlightObj:Destroy() end
             highlightObj = Instance.new("Highlight")
+            highlightObj.Name = "PotatoAimHighlight"
             highlightObj.FillColor = Color3.fromRGB(255, 65, 75)
             highlightObj.FillTransparency = 0.5
             highlightObj.OutlineColor = Color3.fromRGB(255, 65, 75)
@@ -529,23 +404,28 @@ PS.Connect(RunService.RenderStepped, function()
     end
 end)
 
---//==================================================
---// ЛОГИКА: NO RECOIL
---//==================================================
+--// NO RECOIL
 
 local origRecoil = {}
 
+PS.RestoreRecoil = function()
+    for ammo, orig in pairs(origRecoil) do
+        if ammo and ammo.Parent and orig ~= nil then
+            pcall(function()
+                ammo:SetAttribute("RecoilStrength", orig)
+            end)
+        end
+    end
+end
+
 PS.Connect(RunService.RenderStepped, function()
     if not PS.Active then return end
-
     local ammoTypes = game:GetService("ReplicatedStorage"):FindFirstChild("AmmoTypes")
     if not ammoTypes then return end
-
     for _, ammo in ipairs(ammoTypes:GetChildren()) do
         if origRecoil[ammo] == nil then
             origRecoil[ammo] = ammo:GetAttribute("RecoilStrength")
         end
-
         if A.NoRecoil then
             ammo:SetAttribute("RecoilStrength", 0)
         else
@@ -556,9 +436,7 @@ PS.Connect(RunService.RenderStepped, function()
     end
 end)
 
---//==================================================
---// ЛОГИКА: ZOOM
---//==================================================
+--// ZOOM
 
 local zoomHolding = false
 local zoomRestore = nil
@@ -580,9 +458,7 @@ PS.Connect(UserInputService.InputEnded, function(input)
     if input.KeyCode ~= Enum.KeyCode.Unknown and input.KeyCode.Name == A.ZoomKey then
         zoomHolding = false
         local cam = workspace.CurrentCamera
-        if cam and zoomRestore then
-            cam.FieldOfView = zoomRestore
-        end
+        if cam and zoomRestore then cam.FieldOfView = zoomRestore end
         zoomRestore = nil
     end
 end)
@@ -590,27 +466,20 @@ end)
 PS.Connect(RunService.RenderStepped, function()
     if not PS.Active then return end
     if not A.Zoom or not zoomHolding then return end
-
     local cam = workspace.CurrentCamera
     if not cam then return end
-
-    if zoomRestore == nil then
-        zoomRestore = cam.FieldOfView
-    end
-
-    local targetFOV = 90 - (A.ZoomStrength / 100) * 75
-    cam.FieldOfView = targetFOV
+    if zoomRestore == nil then zoomRestore = cam.FieldOfView end
+    cam.FieldOfView = 90 - (A.ZoomStrength / 100) * 75
 end)
 
---//==================================================
---// ЛОГИКА: CROSSHAIR
---//==================================================
+--// CROSSHAIR
 
 local crossGui = Instance.new("ScreenGui")
 crossGui.Name = "PotatoCrosshair"
 crossGui.ResetOnSpawn = false
 crossGui.IgnoreGuiInset = true
 crossGui.Parent = PS.Parent
+PS.Track(crossGui)
 
 local crossFrame = Instance.new("Frame")
 crossFrame.Size = UDim2.fromOffset(A.CrosshairSize, A.CrosshairSize)
@@ -628,9 +497,9 @@ dot.BackgroundColor3 = Colors.Accent
 dot.BorderSizePixel = 0
 dot.Parent = crossFrame
 
-local dotCorner = Instance.new("UICorner")
-dotCorner.CornerRadius = UDim.new(1, 0)
-dotCorner.Parent = dot
+local dotC = Instance.new("UICorner")
+dotC.CornerRadius = UDim.new(1, 0)
+dotC.Parent = dot
 
 local lineUp = Instance.new("Frame")
 lineUp.Size = UDim2.fromOffset(2, 10)
