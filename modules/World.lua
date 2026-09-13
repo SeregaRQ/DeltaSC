@@ -108,34 +108,23 @@ PS.CreateSlider(WorldPage, "World Time", 145, 1, 24, W.Time, function(v)
 end)
 
 --//==================================================
---// REMOVE GRASS
+--// REMOVE GRASS (через замену материала)
 --//==================================================
 
-local hiddenGrass = {}
+local function RemoveGrassTerrain()
+    local Terrain = workspace.Terrain
+    local region = Region3.new(Vector3.new(-2048, -100, -2048), Vector3.new(2048, 500, 2048))
+    
+    pcall(function()
+        Terrain:ReplaceMaterial(region, 4, Enum.Material.Grass, Enum.Material.Asphalt)
+    end)
+end
 
 PS.CreateToggle(WorldPage, "Remove Grass", 210, W.RemoveGrass, function(v)
     W.RemoveGrass = v
 
     if v then
-        for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("BasePart") then
-                local n = obj.Name:lower()
-                if n:find("grass") or n:find("leaf") or n:find("leaves")
-                    or n:find("foliage") or n:find("bush") or n:find("fern") then
-                    if obj.Transparency < 1 then
-                        hiddenGrass[obj] = obj.Transparency
-                        obj.Transparency = 1
-                    end
-                end
-            end
-        end
-    else
-        for obj, t in pairs(hiddenGrass) do
-            if obj and obj.Parent then
-                pcall(function() obj.Transparency = t end)
-            end
-        end
-        table.clear(hiddenGrass)
+        RemoveGrassTerrain()
     end
 end)
 
@@ -168,25 +157,19 @@ local function CreateRGB(parent, name, y, getR, setR, getG, setG, getB, setB)
     PS.CreateSlider(parent, "  B", y + 155, 0, 255, getB(), function(v) setB(v) end)
 end
 
-CreateRGB(
-    WorldPage, "Ambient Color",
-    320,
+CreateRGB(WorldPage, "Ambient Color", 320,
     function() return W.AmbientR end, function(v) W.AmbientR = v end,
     function() return W.AmbientG end, function(v) W.AmbientG = v end,
     function() return W.AmbientB end, function(v) W.AmbientB = v end
 )
 
-CreateRGB(
-    WorldPage, "Sky Color",
-    560,
+CreateRGB(WorldPage, "Sky Color", 560,
     function() return W.SkyR end, function(v) W.SkyR = v end,
     function() return W.SkyG end, function(v) W.SkyG = v end,
     function() return W.SkyB end, function(v) W.SkyB = v end
 )
 
-CreateRGB(
-    WorldPage, "ColorShift Top",
-    800,
+CreateRGB(WorldPage, "ColorShift Top", 800,
     function() return W.CShiftR end, function(v) W.CShiftR = v end,
     function() return W.CShiftG end, function(v) W.CShiftG = v end,
     function() return W.CShiftB end, function(v) W.CShiftB = v end
