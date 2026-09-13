@@ -72,23 +72,11 @@ end
 PS.Parent = Parent
 
 --//==================================================
---// SCREEN GUI
---//==================================================
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "PotatoScript"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.IgnoreGuiInset = true
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ScreenGui.Parent = Parent
-
-PS.GUI = ScreenGui
-
---//==================================================
---// CONNECT MANAGER
+--// CONNECT MANAGER + CLEANUP
 --//==================================================
 
 PS.Connections = {}
+PS.Cleanup = {}
 
 function PS.Connect(signal, callback)
     local conn = signal:Connect(callback)
@@ -103,15 +91,34 @@ function PS.DisconnectAll()
     table.clear(PS.Connections)
 end
 
+function PS.Track(instance)
+    if instance then
+        table.insert(PS.Cleanup, instance)
+    end
+    return instance
+end
+
+function PS.CleanupAll()
+    for _, obj in ipairs(PS.Cleanup) do
+        pcall(function()
+            if obj then obj:Destroy() end
+        end)
+    end
+    table.clear(PS.Cleanup)
+end
+
 --//==================================================
---// TWEEN
+--// SCREEN GUI
 --//==================================================
 
-function PS.Tween(instance, info, properties)
-    local tween = TweenService:Create(instance, info, properties)
-    tween:Play()
-    return tween
-end
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PotatoScript"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = Parent
+
+PS.GUI = ScreenGui
 
 --//==================================================
 --// CREATE TOGGLE
@@ -168,12 +175,12 @@ function PS.CreateToggle(parent, text, y, default, callback)
 
     local function SetState(value)
         state = value
-        PS.Tween(button, TweenInfo.new(0.15), {
+        TweenService:Create(button, TweenInfo.new(0.15), {
             BackgroundColor3 = state and Colors.Accent or Colors.Panel2
-        })
-        PS.Tween(circle, TweenInfo.new(0.15, Enum.EasingStyle.Quart), {
+        }):Play()
+        TweenService:Create(circle, TweenInfo.new(0.15, Enum.EasingStyle.Quart), {
             Position = state and UDim2.new(1, -19, 0.5, -8) or UDim2.fromOffset(3, 3)
-        })
+        }):Play()
         if callback then pcall(callback, state) end
     end
 
@@ -435,23 +442,11 @@ local CloseCorner = Instance.new("UICorner")
 CloseCorner.CornerRadius = UDim.new(0, 8)
 CloseCorner.Parent = Close
 
-PS.Connect(Close.MouseEnter, function()
-    Close.BackgroundColor3 = Colors.Red
-    Close.TextColor3 = Colors.Text
-end)
-
-PS.Connect(Close.MouseLeave, function()
-    Close.BackgroundColor3 = Colors.Panel2
-    Close.TextColor3 = Colors.SubText
-end)
-
 PS.Connect(Close.MouseButton1Click, function()
     Main.Visible = false
 end)
 
---//==================================================
 --// СОЗДАЁМ ВКЛАДКИ
---//==================================================
 
 PS.CreatePage("Player")
 PS.CreatePage("Aim")
@@ -460,9 +455,7 @@ PS.CreatePage("Misc")
 PS.CreatePage("Settings")
 PS.CreatePage("Info")
 
---//==================================================
 --// ВКЛАДКИ (SIDEBAR BUTTONS)
---//==================================================
 
 PS.Tabs = {}
 
@@ -487,16 +480,13 @@ function PS.CreateTab(name, y)
     PS.Tabs[name] = btn
 
     PS.Connect(btn.MouseButton1Click, function()
-        -- Скрываем все
         for _, page in pairs(PS.Pages) do
             page.Visible = false
         end
-        -- Убираем подсветку со всех вкладок
         for _, tab in pairs(PS.Tabs) do
             tab.BackgroundTransparency = 1
             tab.TextColor3 = Colors.SubText
         end
-        -- Показываем нужную
         if PS.Pages[name] then
             PS.Pages[name].Visible = true
         end
@@ -520,9 +510,7 @@ PS.Pages["Player"].Visible = true
 PS.Tabs["Player"].BackgroundTransparency = 0
 PS.Tabs["Player"].TextColor3 = Colors.Text
 
---//==================================================
 --// ПЕРЕТАСКИВАНИЕ
---//==================================================
 
 local dragging = false
 local dragStart, startPos
@@ -554,9 +542,7 @@ PS.Connect(UserInputService.InputEnded, function(input)
     end
 end)
 
---//==================================================
---// RIGHT SHIFT — TOGGLE
---//==================================================
+--// RIGHT SHIFT TOGGLE
 
 local shiftHeld = false
 
@@ -573,5 +559,66 @@ PS.Connect(UserInputService.InputEnded, function(input)
         shiftHeld = false
     end
 end)
+
+--//==================================================
+--// UNHOOK
+--//==================================================
+
+function PS.Unhook()
+    if not PS.Active then return end
+    PS.Active = false
+
+    -- Камера
+    pcall(function()
+        LocalPlayer.CameraMaxZoomDistance = 128
+        LocalPlayer.CameraMinZoomDistance = 0.5
+    end)
+
+    -- Отдача
+    pcall(function()
+        if PS.RestoreRecoil then PS.RestoreRecoil() end
+    end)
+
+    -- Свет
+    pcall(function()
+        if PS.RestoreLighting then PS.RestoreLighting() end
+    end)
+
+    -- Отключаем все соединения
+    pcall(function() PS.DisconnectAll() end)
+
+    -- Удаляем всё зарегистрированное
+    pcall(function() PS.CleanupAll() end)
+
+    -- Убираем ESP у игроков
+    pcall(function()
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p.Character then
+                for _, obj in ipairs(p.Character:GetChildren()) do
+                    if obj.Name:find("Potato") then
+                        obj:Destroy()
+                    end
+                end
+            end
+        end
+    end)
+
+    -- Убираем ESP у NPC / Mine / Crate / любого Potato объекта
+    pcall(function()
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj.Name:find("Potato") then
+                obj:Destroy()
+            end
+        end
+    end)
+
+    -- Удаляем главное меню
+    pcall(function()
+        if PS.GUI then PS.GUI:Destroy() end
+    end)
+
+    _G.PotatoScript = nil
+    print("[PotatoScript] Unhooked — всё удалено")
+end
 
 print("[PotatoScript] Core загружен")
