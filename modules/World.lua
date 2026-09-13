@@ -89,6 +89,10 @@ title.Parent = WorldPage
 
 PS.CreateToggle(WorldPage, "Fullbright", 45, W.Fullbright, function(v)
     W.Fullbright = v
+    if not v then
+        Lighting.Brightness = Orig.Brightness
+        Lighting.GlobalShadows = Orig.GlobalShadows
+    end
 end)
 
 --//==================================================
@@ -97,6 +101,9 @@ end)
 
 PS.CreateToggle(WorldPage, "Time Lock", 95, W.TimeLock, function(v)
     W.TimeLock = v
+    if not v then
+        Lighting.ClockTime = Orig.ClockTime
+    end
 end)
 
 --//==================================================
@@ -113,14 +120,10 @@ end)
 
 local function ReplaceGrassWithAsphalt()
     local Terrain = workspace.Terrain
-    -- Регион задаем с запасом, чтобы покрыть карту
-    -- Важно: координаты должны быть кратны 4 (размер вокселя)
     local region = Region3.new(
         Vector3.new(-2048, -100, -2048), 
         Vector3.new(2048, 500, 2048)
     )
-
-    -- replaceMaterial заменяет траву на асфальт в указанном регионе
     pcall(function()
         Terrain:ReplaceMaterial(region, 4, Enum.Material.Grass, Enum.Material.Asphalt)
     end)
@@ -128,7 +131,6 @@ end
 
 PS.CreateToggle(WorldPage, "Remove Grass", 210, W.RemoveGrass, function(v)
     W.RemoveGrass = v
-    
     if v then
         ReplaceGrassWithAsphalt()
     end
@@ -140,27 +142,67 @@ end)
 
 PS.CreateToggle(WorldPage, "Remove Fog", 260, W.RemoveFog, function(v)
     W.RemoveFog = v
+    if not v then
+        Lighting.FogEnd = Orig.FogEnd
+        Lighting.FogStart = Orig.FogStart
+    end
 end)
 
 --//==================================================
---// RGB SECTION
+--// RGB SECTION (с заголовком и кнопкой СБРОС)
 --//==================================================
 
 local function CreateRGB(parent, name, y, getR, setR, getG, setG, getB, setB)
+    -- Плашка заголовка
+    local headerFrame = Instance.new("Frame")
+    headerFrame.Size = UDim2.new(1, -10, 0, 30)
+    headerFrame.Position = UDim2.fromOffset(5, y)
+    headerFrame.BackgroundColor3 = Colors.Panel2
+    headerFrame.BorderSizePixel = 0
+    headerFrame.Parent = parent
+
+    local hCorner = Instance.new("UICorner")
+    hCorner.CornerRadius = UDim.new(0, 8)
+    hCorner.Parent = headerFrame
+
     local header = Instance.new("TextLabel")
-    header.Size = UDim2.new(1, -10, 0, 20)
-    header.Position = UDim2.fromOffset(8, y)
+    header.Size = UDim2.new(1, -80, 1, 0)
+    header.Position = UDim2.fromOffset(10, 0)
     header.BackgroundTransparency = 1
     header.Text = name
     header.TextColor3 = Colors.Accent
     header.TextSize = 13
     header.Font = Enum.Font.GothamBold
     header.TextXAlignment = Enum.TextXAlignment.Left
-    header.Parent = parent
+    header.Parent = headerFrame
 
-    PS.CreateSlider(parent, "  R", y + 25, 0, 255, getR(), function(v) setR(v) end)
-    PS.CreateSlider(parent, "  G", y + 90, 0, 255, getG(), function(v) setG(v) end)
-    PS.CreateSlider(parent, "  B", y + 155, 0, 255, getB(), function(v) setB(v) end)
+    -- Кнопка "RESET"
+    local resetBtn = Instance.new("TextButton")
+    resetBtn.Size = UDim2.fromOffset(60, 22)
+    resetBtn.Position = UDim2.new(1, -70, 0.5, -11)
+    resetBtn.BackgroundColor3 = Colors.Panel
+    resetBtn.BorderSizePixel = 0
+    resetBtn.Text = "RESET"
+    resetBtn.TextColor3 = Colors.SubText
+    resetBtn.TextSize = 10
+    resetBtn.Font = Enum.Font.GothamBold
+    resetBtn.AutoButtonColor = false
+    resetBtn.Parent = headerFrame
+
+    local rCorner = Instance.new("UICorner")
+    rCorner.CornerRadius = UDim.new(0, 6)
+    rCorner.Parent = resetBtn
+
+    PS.Connect(resetBtn.MouseButton1Click, function()
+        setR(128)
+        setG(128)
+        setB(128)
+    end)
+
+    -- Слайдеры
+    PS.CreateSlider(parent, "  R", y + 35, 0, 255, getR(), function(v) setR(v) end)
+    PS.CreateSlider(parent, "  G", y + 100, 0, 255, getG(), function(v) setG(v) end)
+    PS.CreateSlider(parent, "  B", y + 165, 0, 255, getB(), function(v) setB(v) end)
 end
 
 CreateRGB(WorldPage, "Ambient Color", 320,
@@ -169,13 +211,13 @@ CreateRGB(WorldPage, "Ambient Color", 320,
     function() return W.AmbientB end, function(v) W.AmbientB = v end
 )
 
-CreateRGB(WorldPage, "Sky Color", 560,
+CreateRGB(WorldPage, "Sky Color", 620,
     function() return W.SkyR end, function(v) W.SkyR = v end,
     function() return W.SkyG end, function(v) W.SkyG = v end,
     function() return W.SkyB end, function(v) W.SkyB = v end
 )
 
-CreateRGB(WorldPage, "ColorShift Top", 800,
+CreateRGB(WorldPage, "ColorShift Top", 920,
     function() return W.CShiftR end, function(v) W.CShiftR = v end,
     function() return W.CShiftG end, function(v) W.CShiftG = v end,
     function() return W.CShiftB end, function(v) W.CShiftB = v end
@@ -188,33 +230,46 @@ CreateRGB(WorldPage, "ColorShift Top", 800,
 PS.Connect(RunService.RenderStepped, function()
     if not PS.Active then return end
 
-    -- Fullbright
+    -- FULLBRIGHT
     if W.Fullbright then
         Lighting.Brightness = 3
         Lighting.GlobalShadows = false
     end
 
-    -- Time Lock
+    -- TIME LOCK
     if W.TimeLock then
         Lighting.ClockTime = W.Time
     end
 
-    -- Remove Fog
+    -- REMOVE FOG
     if W.RemoveFog then
         Lighting.FogEnd = 100000
         Lighting.FogStart = 0
     end
 
-    -- Ambient
-    local ambient = Color3.fromRGB(W.AmbientR, W.AmbientG, W.AmbientB)
-    Lighting.Ambient = ambient
-    Lighting.OutdoorAmbient = ambient
+    -- AMBIENT
+    if W.AmbientR ~= 128 or W.AmbientG ~= 128 or W.AmbientB ~= 128 then
+        local ambient = Color3.fromRGB(W.AmbientR, W.AmbientG, W.AmbientB)
+        Lighting.Ambient = ambient
+        Lighting.OutdoorAmbient = ambient
+    else
+        Lighting.Ambient = Orig.Ambient
+        Lighting.OutdoorAmbient = Orig.OutdoorAmbient
+    end
 
-    -- Sky
-    Lighting.ColorShift_Bottom = Color3.fromRGB(W.SkyR, W.SkyG, W.SkyB)
+    -- SKY
+    if W.SkyR ~= 128 or W.SkyG ~= 128 or W.SkyB ~= 128 then
+        Lighting.ColorShift_Bottom = Color3.fromRGB(W.SkyR, W.SkyG, W.SkyB)
+    else
+        Lighting.ColorShift_Bottom = Orig.ColorShiftBottom
+    end
 
     -- ColorShift Top
-    Lighting.ColorShift_Top = Color3.fromRGB(W.CShiftR, W.CShiftG, W.CShiftB)
+    if W.CShiftR ~= 128 or W.CShiftG ~= 128 or W.CShiftB ~= 128 then
+        Lighting.ColorShift_Top = Color3.fromRGB(W.CShiftR, W.CShiftG, W.CShiftB)
+    else
+        Lighting.ColorShift_Top = Orig.ColorShiftTop
+    end
 end)
 
 print("[PotatoScript] World загружен")
