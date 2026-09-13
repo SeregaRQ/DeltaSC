@@ -31,12 +31,7 @@ local BASE_URL = "https://raw.githubusercontent.com/ТВОЙ_НИК/PotatoScript
 
 local Modules = {
     "Core",
-    "Player",
-    "Aim",
-    "World",
-    "Misc",
     "Settings",
-    "Info"
 }
 
 local function LoadModule(name)
