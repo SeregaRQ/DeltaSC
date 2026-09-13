@@ -22,20 +22,20 @@ local RunService = PS.RunService
 PS.Player = PS.Player or {}
 local P = PS.Player
 
-P.PlayerESP         = P.PlayerESP or false
-P.PlayerESPDist     = P.PlayerESPDist or 3000
+P.PlayerESP     = P.PlayerESP or false
+P.PlayerESPDist = P.PlayerESPDist or 3000
 
-P.FriendESP         = P.FriendESP or false
-P.FriendESPDist     = P.FriendESPDist or 3000
+P.FriendESP     = P.FriendESP or false
+P.FriendESPDist = P.FriendESPDist or 3000
 
-P.NPCESP            = P.NPCESP or false
-P.NPCESPDist        = P.NPCESPDist or 3000
+P.NPCESP        = P.NPCESP or false
+P.NPCESPDist    = P.NPCESPDist or 3000
 
-P.MineESP           = P.MineESP or false
-P.MineESPDist       = P.MineESPDist or 3000
+P.MineESP       = P.MineESP or false
+P.MineESPDist   = P.MineESPDist or 3000
 
-P.CrateESP          = P.CrateESP or false
-P.CrateESPDist      = P.CrateESPDist or 3000
+P.CrateESP      = P.CrateESP or false
+P.CrateESPDist  = P.CrateESPDist or 3000
 
 --//==================================================
 --// ЗАГОЛОВОК
@@ -53,30 +53,16 @@ title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = PlayerPage
 
 --//==================================================
---// 1. PLAYER ESP
+--// UI: 5 ESP ТОГГЛОВ + СЛАЙДЕРЫ
 --//==================================================
 
 PS.CreateToggle(PlayerPage, "Player ESP", 45, P.PlayerESP, function(v)
     P.PlayerESP = v
-    if not v then
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character then
-                local hl = p.Character:FindFirstChild("PotatoPlayerESP")
-                if hl then hl:Destroy() end
-                local bb = p.Character:FindFirstChild("PotatoPlayerESPInfo")
-                if bb then bb:Destroy() end
-            end
-        end
-    end
 end)
 
 PS.CreateSlider(PlayerPage, "Player ESP Distance", 95, 1, 3000, P.PlayerESPDist, function(v)
     P.PlayerESPDist = v
 end)
-
---//==================================================
---// 2. FRIEND ESP
---//==================================================
 
 PS.CreateToggle(PlayerPage, "Friend ESP", 160, P.FriendESP, function(v)
     P.FriendESP = v
@@ -86,10 +72,6 @@ PS.CreateSlider(PlayerPage, "Friend ESP Distance", 210, 1, 3000, P.FriendESPDist
     P.FriendESPDist = v
 end)
 
---//==================================================
---// 3. NPC ESP
---//==================================================
-
 PS.CreateToggle(PlayerPage, "NPC ESP", 275, P.NPCESP, function(v)
     P.NPCESP = v
 end)
@@ -98,10 +80,6 @@ PS.CreateSlider(PlayerPage, "NPC ESP Distance", 325, 1, 3000, P.NPCESPDist, func
     P.NPCESPDist = v
 end)
 
---//==================================================
---// 4. MINE ESP
---//==================================================
-
 PS.CreateToggle(PlayerPage, "Mine ESP", 390, P.MineESP, function(v)
     P.MineESP = v
 end)
@@ -109,10 +87,6 @@ end)
 PS.CreateSlider(PlayerPage, "Mine ESP Distance", 440, 1, 3000, P.MineESPDist, function(v)
     P.MineESPDist = v
 end)
-
---//==================================================
---// 5. CRATE ESP
---//==================================================
 
 PS.CreateToggle(PlayerPage, "Crate ESP", 505, P.CrateESP, function(v)
     P.CrateESP = v
@@ -126,12 +100,12 @@ end)
 --// ЦВЕТА
 --//==================================================
 
-local COLOR_WHITE   = Color3.fromRGB(255, 255, 255)
-local COLOR_RED     = Color3.fromRGB(255, 65, 75)
-local COLOR_GREEN   = Color3.fromRGB(70, 210, 125)
-local COLOR_YELLOW  = Color3.fromRGB(255, 220, 50)
-local COLOR_PURPLE  = Color3.fromRGB(170, 85, 255)
-local COLOR_ORANGE  = Color3.fromRGB(255, 150, 50)
+local COLOR_WHITE  = Color3.fromRGB(255, 255, 255)
+local COLOR_RED    = Color3.fromRGB(255, 65, 75)
+local COLOR_GREEN  = Color3.fromRGB(70, 210, 125)
+local COLOR_YELLOW = Color3.fromRGB(255, 220, 50)
+local COLOR_PURPLE = Color3.fromRGB(170, 85, 255)
+local COLOR_ORANGE = Color3.fromRGB(255, 150, 50)
 
 --//==================================================
 --// ХЕЛПЕРЫ
@@ -147,7 +121,6 @@ end
 local function IsVisible(part)
     local origin = Camera.CFrame.Position
     local dir = part.Position - origin
-    local dist = dir.Magnitude
 
     local params = RaycastParams.new()
     params.FilterType = Enum.RaycastFilterType.Exclude
@@ -162,7 +135,7 @@ end
 local function MakeBillboard(parent, name, text, color, offset)
     local bb = Instance.new("BillboardGui")
     bb.Name = name
-    bb.Size = UDim2.fromOffset(200, 40)
+    bb.Size = UDim2.fromOffset(200, 30)
     bb.StudsOffset = offset or Vector3.new(0, 3, 0)
     bb.AlwaysOnTop = true
     bb.MaxDistance = 3000
@@ -195,26 +168,24 @@ local function MakeHighlight(parent, name, color)
 end
 
 --//==================================================
---// PLAYER ESP — UPDATE
+--// PLAYER ESP + FRIEND ESP — UPDATE
 --//==================================================
-
-local playerESPObjects = {}
 
 local function UpdatePlayerESP()
     if not PS.Active then return end
+
+    local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character then
             local char = p.Character
             local hum = char:FindFirstChildOfClass("Humanoid")
             local head = char:FindFirstChild("Head")
-            local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 
             if hum and hum.Health > 0 and head and myRoot then
                 local dist = (head.Position - myRoot.Position).Magnitude
                 local isFriend = IsFriend(p)
 
-                -- Определяем какой ESP применять
                 local showAs = nil
                 if isFriend and P.FriendESP and dist <= P.FriendESPDist then
                     showAs = "friend"
@@ -223,17 +194,14 @@ local function UpdatePlayerESP()
                 end
 
                 if showAs then
-                    -- Цвет
                     local color
                     if showAs == "friend" then
                         color = COLOR_GREEN
                     else
-                        -- Player: белый за стеной, красный видно
                         local visible = IsVisible(head)
                         color = visible and COLOR_RED or COLOR_WHITE
                     end
 
-                    -- Highlight
                     local hl = char:FindFirstChild("PotatoPlayerESP")
                     if not hl then
                         hl = MakeHighlight(char, "PotatoPlayerESP", color)
@@ -241,7 +209,6 @@ local function UpdatePlayerESP()
                     hl.FillColor = color
                     hl.OutlineColor = color
 
-                    -- Billboard
                     local bb = char:FindFirstChild("PotatoPlayerESPInfo")
                     if not bb then
                         bb, _ = MakeBillboard(head, "PotatoPlayerESPInfo", p.Name, color)
@@ -252,7 +219,6 @@ local function UpdatePlayerESP()
                         lbl.TextColor3 = color
                     end
                 else
-                    -- Убираем если не должен показываться
                     local hl = char:FindFirstChild("PotatoPlayerESP")
                     if hl then hl:Destroy() end
                     local bb = char:FindFirstChild("PotatoPlayerESPInfo")
@@ -264,8 +230,10 @@ local function UpdatePlayerESP()
 end
 
 --//==================================================
---// NPC ESP — UPDATE
+--// NPC ESP — OPTIMIZED
 --//==================================================
+
+local npcCandidates = {}
 
 local function IsNPC(model)
     if not model or not model:IsA("Model") then return false end
@@ -275,15 +243,54 @@ local function IsNPC(model)
     return hum ~= nil and head ~= nil and hum.Health > 0
 end
 
+for _, model in ipairs(workspace:GetDescendants()) do
+    if IsNPC(model) then
+        npcCandidates[model] = true
+    end
+end
+
+PS.Connect(workspace.DescendantAdded, function(obj)
+    if obj:IsA("Model") then
+        task.defer(function()
+            if IsNPC(obj) then
+                npcCandidates[obj] = true
+            end
+        end)
+    end
+end)
+
+PS.Connect(workspace.DescendantRemoving, function(obj)
+    if npcCandidates[obj] then
+        npcCandidates[obj] = nil
+    end
+end)
+
 local function UpdateNPCESP()
     if not PS.Active then return end
-    if not P.NPCESP then return end
 
-    for _, model in ipairs(workspace:GetDescendants()) do
-        if IsNPC(model) then
+    if not P.NPCESP then
+        for model in pairs(npcCandidates) do
+            local hl = model:FindFirstChild("PotatoNPCESP")
+            if hl then hl:Destroy() end
+            local bb = model:FindFirstChild("PotatoNPCESPInfo")
+            if bb then bb:Destroy() end
+        end
+        return
+    end
+
+    local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not myRoot then return end
+
+    for model in pairs(npcCandidates) do
+        if not model.Parent or not IsNPC(model) then
+            npcCandidates[model] = nil
+            local hl = model:FindFirstChild("PotatoNPCESP")
+            if hl then hl:Destroy() end
+            local bb = model:FindFirstChild("PotatoNPCESPInfo")
+            if bb then bb:Destroy() end
+        else
             local head = model:FindFirstChild("Head")
-            local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if head and myRoot then
+            if head then
                 local dist = (head.Position - myRoot.Position).Magnitude
                 if dist <= P.NPCESPDist then
                     local hl = model:FindFirstChild("PotatoNPCESP")
@@ -310,7 +317,7 @@ local function UpdateNPCESP()
 end
 
 --//==================================================
---// MINE ESP — UPDATE
+--// MINE ESP — OPTIMIZED
 --//==================================================
 
 local MINE_NAMES = {
@@ -333,15 +340,56 @@ local function IsMine(model)
     return false
 end
 
+local mineCandidates = {}
+
+for _, model in ipairs(workspace:GetDescendants()) do
+    if IsMine(model) then
+        mineCandidates[model] = true
+    end
+end
+
+PS.Connect(workspace.DescendantAdded, function(obj)
+    if obj:IsA("Model") then
+        task.defer(function()
+            if IsMine(obj) then
+                mineCandidates[obj] = true
+            end
+        end)
+    end
+end)
+
+PS.Connect(workspace.DescendantRemoving, function(obj)
+    if mineCandidates[obj] then
+        mineCandidates[obj] = nil
+    end
+end)
+
 local function UpdateMineESP()
     if not PS.Active then return end
-    if not P.MineESP then return end
 
-    for _, model in ipairs(workspace:GetDescendants()) do
-        if IsMine(model) then
+    if not P.MineESP then
+        for model in pairs(mineCandidates) do
+            local hl = model:FindFirstChild("PotatoMineESP")
+            if hl then hl:Destroy() end
+            local bb = model:FindFirstChild("PotatoMineESPInfo")
+            if bb then bb:Destroy() end
+        end
+        return
+    end
+
+    local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not myRoot then return end
+
+    for model in pairs(mineCandidates) do
+        if not model.Parent or not IsMine(model) then
+            mineCandidates[model] = nil
+            local hl = model:FindFirstChild("PotatoMineESP")
+            if hl then hl:Destroy() end
+            local bb = model:FindFirstChild("PotatoMineESPInfo")
+            if bb then bb:Destroy() end
+        else
             local prim = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart")
-            local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if prim and myRoot then
+            if prim then
                 local dist = (prim.Position - myRoot.Position).Magnitude
                 if dist <= P.MineESPDist then
                     local hl = model:FindFirstChild("PotatoMineESP")
@@ -368,7 +416,7 @@ local function UpdateMineESP()
 end
 
 --//==================================================
---// CRATE ESP — UPDATE
+--// CRATE ESP — OPTIMIZED
 --//==================================================
 
 local function IsCrate(model)
@@ -386,15 +434,56 @@ local function IsCrate(model)
     return false
 end
 
+local crateCandidates = {}
+
+for _, model in ipairs(workspace:GetDescendants()) do
+    if IsCrate(model) then
+        crateCandidates[model] = true
+    end
+end
+
+PS.Connect(workspace.DescendantAdded, function(obj)
+    if obj:IsA("Model") then
+        task.defer(function()
+            if IsCrate(obj) then
+                crateCandidates[obj] = true
+            end
+        end)
+    end
+end)
+
+PS.Connect(workspace.DescendantRemoving, function(obj)
+    if crateCandidates[obj] then
+        crateCandidates[obj] = nil
+    end
+end)
+
 local function UpdateCrateESP()
     if not PS.Active then return end
-    if not P.CrateESP then return end
 
-    for _, model in ipairs(workspace:GetDescendants()) do
-        if IsCrate(model) then
+    if not P.CrateESP then
+        for model in pairs(crateCandidates) do
+            local hl = model:FindFirstChild("PotatoCrateESP")
+            if hl then hl:Destroy() end
+            local bb = model:FindFirstChild("PotatoCrateESPInfo")
+            if bb then bb:Destroy() end
+        end
+        return
+    end
+
+    local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not myRoot then return end
+
+    for model in pairs(crateCandidates) do
+        if not model.Parent or not IsCrate(model) then
+            crateCandidates[model] = nil
+            local hl = model:FindFirstChild("PotatoCrateESP")
+            if hl then hl:Destroy() end
+            local bb = model:FindFirstChild("PotatoCrateESPInfo")
+            if bb then bb:Destroy() end
+        else
             local prim = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart")
-            local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if prim and myRoot then
+            if prim then
                 local dist = (prim.Position - myRoot.Position).Magnitude
                 if dist <= P.CrateESPDist then
                     local hl = model:FindFirstChild("PotatoCrateESP")
@@ -421,7 +510,7 @@ local function UpdateCrateESP()
 end
 
 --//==================================================
---// ОБНОВЛЕНИЕ (раз в 0.15 сек)
+--// ОБНОВЛЕНИЕ
 --//==================================================
 
 local espTimer = 0
