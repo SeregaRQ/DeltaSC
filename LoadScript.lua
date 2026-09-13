@@ -27,7 +27,7 @@ local PS = _G.PotatoScript
 --// ЗАГРУЗКА МОДУЛЕЙ
 --//==================================================
 
-local BASE_URL = "https://raw.githubusercontent.com/ТВОЙ_НИК/PotatoScript/main/modules/"
+local BASE_URL = "https://raw.githubusercontent.com/SeregaRQ/PotatoProject/main/modules/"
 
 local Modules = {
     "Core",
