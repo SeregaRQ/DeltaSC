@@ -20,26 +20,26 @@ local RunService = PS.RunService
 PS.World = PS.World or {}
 local W = PS.World
 
-W.Fullbright     = W.Fullbright or false
-W.TimeLock       = W.TimeLock or false
-W.Time           = W.Time or 14
-W.RemoveGrass    = W.RemoveGrass or false
-W.RemoveFog      = W.RemoveFog or false
+W.Fullbright  = W.Fullbright or false
+W.TimeLock    = W.TimeLock or false
+W.Time        = W.Time or 14
+W.RemoveGrass = W.RemoveGrass or false
+W.RemoveFog   = W.RemoveFog or false
 
-W.AmbientR       = W.AmbientR or 128
-W.AmbientG       = W.AmbientG or 128
-W.AmbientB       = W.AmbientB or 128
+W.AmbientR    = W.AmbientR or 128
+W.AmbientG    = W.AmbientG or 128
+W.AmbientB    = W.AmbientB or 128
 
-W.SkyR           = W.SkyR or 128
-W.SkyG           = W.SkyG or 128
-W.SkyB           = W.SkyB or 128
+W.SkyR        = W.SkyR or 128
+W.SkyG        = W.SkyG or 128
+W.SkyB        = W.SkyB or 128
 
-W.CShiftR        = W.CShiftR or 128
-W.CShiftG        = W.CShiftG or 128
-W.CShiftB        = W.CShiftB or 128
+W.CShiftR     = W.CShiftR or 128
+W.CShiftG     = W.CShiftG or 128
+W.CShiftB     = W.CShiftB or 128
 
 --//==================================================
---// ОРИГИНАЛЫ (сохраняем, чтобы восстановить при Unhook)
+--// ОРИГИНАЛЫ
 --//==================================================
 
 local Orig = {
@@ -52,7 +52,6 @@ local Orig = {
     FogEnd = Lighting.FogEnd,
     FogStart = Lighting.FogStart,
     ClockTime = Lighting.ClockTime,
-    TerrainDecoration = workspace.Terrain.Decoration,
 }
 
 PS.RestoreLighting = function()
@@ -66,7 +65,6 @@ PS.RestoreLighting = function()
         Lighting.FogEnd = Orig.FogEnd
         Lighting.FogStart = Orig.FogStart
         Lighting.ClockTime = Orig.ClockTime
-        workspace.Terrain.Decoration = Orig.TerrainDecoration
     end)
 end
 
@@ -86,7 +84,7 @@ title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = WorldPage
 
 --//==================================================
---// 1. FULLBRIGHT
+--// FULLBRIGHT
 --//==================================================
 
 PS.CreateToggle(WorldPage, "Fullbright", 45, W.Fullbright, function(v)
@@ -94,7 +92,7 @@ PS.CreateToggle(WorldPage, "Fullbright", 45, W.Fullbright, function(v)
 end)
 
 --//==================================================
---// 2. TIME LOCK
+--// TIME LOCK
 --//==================================================
 
 PS.CreateToggle(WorldPage, "Time Lock", 95, W.TimeLock, function(v)
@@ -102,7 +100,7 @@ PS.CreateToggle(WorldPage, "Time Lock", 95, W.TimeLock, function(v)
 end)
 
 --//==================================================
---// 3. WORLD TIME
+--// WORLD TIME
 --//==================================================
 
 PS.CreateSlider(WorldPage, "World Time", 145, 1, 24, W.Time, function(v)
@@ -110,15 +108,39 @@ PS.CreateSlider(WorldPage, "World Time", 145, 1, 24, W.Time, function(v)
 end)
 
 --//==================================================
---// 4. REMOVE GRASS
+--// REMOVE GRASS
 --//==================================================
+
+local hiddenGrass = {}
 
 PS.CreateToggle(WorldPage, "Remove Grass", 210, W.RemoveGrass, function(v)
     W.RemoveGrass = v
+
+    if v then
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                local n = obj.Name:lower()
+                if n:find("grass") or n:find("leaf") or n:find("leaves")
+                    or n:find("foliage") or n:find("bush") or n:find("fern") then
+                    if obj.Transparency < 1 then
+                        hiddenGrass[obj] = obj.Transparency
+                        obj.Transparency = 1
+                    end
+                end
+            end
+        end
+    else
+        for obj, t in pairs(hiddenGrass) do
+            if obj and obj.Parent then
+                pcall(function() obj.Transparency = t end)
+            end
+        end
+        table.clear(hiddenGrass)
+    end
 end)
 
 --//==================================================
---// 5. REMOVE FOG
+--// REMOVE FOG
 --//==================================================
 
 PS.CreateToggle(WorldPage, "Remove Fog", 260, W.RemoveFog, function(v)
@@ -126,12 +148,10 @@ PS.CreateToggle(WorldPage, "Remove Fog", 260, W.RemoveFog, function(v)
 end)
 
 --//==================================================
---// RGB-ПОЛЗУНКИ
+--// RGB SECTION
 --//==================================================
 
--- Функция создания трёх слайдеров для RGB
-local function CreateRGBSection(parent, name, y, getR, setR, getG, setG, getB, setB)
-    -- Заголовок
+local function CreateRGB(parent, name, y, getR, setR, getG, setG, getB, setB)
     local header = Instance.new("TextLabel")
     header.Size = UDim2.new(1, -10, 0, 20)
     header.Position = UDim2.fromOffset(8, y)
@@ -143,23 +163,12 @@ local function CreateRGBSection(parent, name, y, getR, setR, getG, setG, getB, s
     header.TextXAlignment = Enum.TextXAlignment.Left
     header.Parent = parent
 
-    -- R
-    PS.CreateSlider(parent, "  R", y + 25, 0, 255, getR(), function(v)
-        setR(v)
-    end)
-
-    -- G
-    PS.CreateSlider(parent, "  G", y + 90, 0, 255, getG(), function(v)
-        setG(v)
-    end)
-
-    -- B
-    PS.CreateSlider(parent, "  B", y + 155, 0, 255, getB(), function(v)
-        setB(v)
-    end)
+    PS.CreateSlider(parent, "  R", y + 25, 0, 255, getR(), function(v) setR(v) end)
+    PS.CreateSlider(parent, "  G", y + 90, 0, 255, getG(), function(v) setG(v) end)
+    PS.CreateSlider(parent, "  B", y + 155, 0, 255, getB(), function(v) setB(v) end)
 end
 
-CreateRGBSection(
+CreateRGB(
     WorldPage, "Ambient Color",
     320,
     function() return W.AmbientR end, function(v) W.AmbientR = v end,
@@ -167,7 +176,7 @@ CreateRGBSection(
     function() return W.AmbientB end, function(v) W.AmbientB = v end
 )
 
-CreateRGBSection(
+CreateRGB(
     WorldPage, "Sky Color",
     560,
     function() return W.SkyR end, function(v) W.SkyR = v end,
@@ -175,7 +184,7 @@ CreateRGBSection(
     function() return W.SkyB end, function(v) W.SkyB = v end
 )
 
-CreateRGBSection(
+CreateRGB(
     WorldPage, "ColorShift Top",
     800,
     function() return W.CShiftR end, function(v) W.CShiftR = v end,
@@ -201,23 +210,18 @@ PS.Connect(RunService.RenderStepped, function()
         Lighting.ClockTime = W.Time
     end
 
-    -- Remove Grass
-    pcall(function()
-        workspace.Terrain.Decoration = not W.RemoveGrass
-    end)
-
     -- Remove Fog
     if W.RemoveFog then
         Lighting.FogEnd = 100000
         Lighting.FogStart = 0
     end
 
-    -- Ambient Color
-    local ambientColor = Color3.fromRGB(W.AmbientR, W.AmbientG, W.AmbientB)
-    Lighting.Ambient = ambientColor
-    Lighting.OutdoorAmbient = ambientColor
+    -- Ambient
+    local ambient = Color3.fromRGB(W.AmbientR, W.AmbientG, W.AmbientB)
+    Lighting.Ambient = ambient
+    Lighting.OutdoorAmbient = ambient
 
-    -- Sky Color (ColorShift Bottom = как небо)
+    -- Sky
     Lighting.ColorShift_Bottom = Color3.fromRGB(W.SkyR, W.SkyG, W.SkyB)
 
     -- ColorShift Top
