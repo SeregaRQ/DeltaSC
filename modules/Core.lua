@@ -299,6 +299,29 @@ function PS.CreateSlider(parent, text, y, min, max, default, callback)
 end
 
 --//==================================================
+--// CREATE SECTION (Заголовок для группы)
+--//==================================================
+
+function PS.CreateSection(parent, title)
+    local section = Instance.new("TextLabel")
+    section.Size = UDim2.new(1, -10, 0, 30)
+    section.BackgroundColor3 = Colors.Panel2
+    section.BorderSizePixel = 0
+    section.Text = "  " .. title
+    section.TextColor3 = Colors.Accent
+    section.TextSize = 13
+    section.Font = Enum.Font.GothamBold
+    section.TextXAlignment = Enum.TextXAlignment.Left
+    section.Parent = parent
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = section
+
+    return section
+end
+
+--//==================================================
 --// CREATE PAGE
 --//==================================================
 
