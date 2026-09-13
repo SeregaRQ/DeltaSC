@@ -12,9 +12,7 @@ local SettingsPage = PS.Pages["Settings"]
 local Colors = PS.Colors
 local UserInputService = PS.UserInputService
 
---//==================================================
---// ЗАГОЛОВОК
---//==================================================
+--// Заголовок
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -10, 0, 28)
@@ -27,9 +25,7 @@ title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = SettingsPage
 
---//==================================================
---// MENU KEYBIND
---//==================================================
+--// Menu Keybind
 
 PS.Config = PS.Config or {}
 PS.Config.MenuKey = PS.Config.MenuKey or Enum.KeyCode.RightShift
@@ -91,9 +87,7 @@ PS.Connect(UserInputService.InputBegan, function(input, processed)
     end
 end)
 
---//==================================================
---// UNHOOK
---//==================================================
+--// Unhook
 
 local unhookBtn = Instance.new("TextButton")
 unhookBtn.Size = UDim2.new(1, -10, 0, 42)
@@ -112,24 +106,9 @@ unhookCorner.CornerRadius = UDim.new(0, 9)
 unhookCorner.Parent = unhookBtn
 
 PS.Connect(unhookBtn.MouseButton1Click, function()
-    if not PS.Active then return end
-    PS.Active = false
-
-    if PS.DisconnectAll then
-        pcall(PS.DisconnectAll)
+    if PS.Unhook then
+        PS.Unhook()
     end
-
-    pcall(function()
-        PS.LocalPlayer.CameraMaxZoomDistance = 128
-        PS.LocalPlayer.CameraMinZoomDistance = 0.5
-    end)
-
-    pcall(function()
-        if PS.GUI then PS.GUI:Destroy() end
-    end)
-
-    _G.PotatoScript = nil
-    print("[PotatoScript] Unhooked")
 end)
 
 print("[PotatoScript] Settings загружен")
