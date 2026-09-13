@@ -72,22 +72,13 @@ end
 --// ЗАГОЛОВОК
 --//==================================================
 
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -10, 0, 28)
-title.Position = UDim2.fromOffset(5, 5)
-title.BackgroundTransparency = 1
-title.Text = "World"
-title.TextColor3 = Colors.Text
-title.TextSize = 16
-title.Font = Enum.Font.GothamBold
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = WorldPage
+PS.CreateSection(WorldPage, "Lighting")
 
 --//==================================================
 --// FULLBRIGHT
 --//==================================================
 
-PS.CreateToggle(WorldPage, "Fullbright", 45, W.Fullbright, function(v)
+PS.CreateToggle(WorldPage, "Fullbright", 0, W.Fullbright, function(v)
     W.Fullbright = v
     if not v then
         Lighting.Brightness = Orig.Brightness
@@ -99,7 +90,7 @@ end)
 --// TIME LOCK
 --//==================================================
 
-PS.CreateToggle(WorldPage, "Time Lock", 95, W.TimeLock, function(v)
+PS.CreateToggle(WorldPage, "Time Lock", 0, W.TimeLock, function(v)
     W.TimeLock = v
     if not v then
         Lighting.ClockTime = Orig.ClockTime
@@ -110,37 +101,15 @@ end)
 --// WORLD TIME
 --//==================================================
 
-PS.CreateSlider(WorldPage, "World Time", 145, 1, 24, W.Time, function(v)
+PS.CreateSlider(WorldPage, "World Time", 0, 1, 24, W.Time, function(v)
     W.Time = v
-end)
-
---//==================================================
---// REMOVE GRASS (ЧЕРЕЗ ЗАМЕНУ МАТЕРИАЛА)
---//==================================================
-
-local function ReplaceGrassWithAsphalt()
-    local Terrain = workspace.Terrain
-    local region = Region3.new(
-        Vector3.new(-2048, -100, -2048), 
-        Vector3.new(2048, 500, 2048)
-    )
-    pcall(function()
-        Terrain:ReplaceMaterial(region, 4, Enum.Material.Grass, Enum.Material.Asphalt)
-    end)
-end
-
-PS.CreateToggle(WorldPage, "Remove Grass", 210, W.RemoveGrass, function(v)
-    W.RemoveGrass = v
-    if v then
-        ReplaceGrassWithAsphalt()
-    end
 end)
 
 --//==================================================
 --// REMOVE FOG
 --//==================================================
 
-PS.CreateToggle(WorldPage, "Remove Fog", 260, W.RemoveFog, function(v)
+PS.CreateToggle(WorldPage, "Remove Fog", 0, W.RemoveFog, function(v)
     W.RemoveFog = v
     if not v then
         Lighting.FogEnd = Orig.FogEnd
@@ -149,79 +118,51 @@ PS.CreateToggle(WorldPage, "Remove Fog", 260, W.RemoveFog, function(v)
 end)
 
 --//==================================================
---// RGB SECTION (с заголовком и кнопкой СБРОС)
+--// REMOVE GRASS
 --//==================================================
 
-local function CreateRGB(parent, name, y, getR, setR, getG, setG, getB, setB)
-    -- Плашка заголовка
-    local headerFrame = Instance.new("Frame")
-    headerFrame.Size = UDim2.new(1, -10, 0, 30)
-    headerFrame.Position = UDim2.fromOffset(5, y)
-    headerFrame.BackgroundColor3 = Colors.Panel2
-    headerFrame.BorderSizePixel = 0
-    headerFrame.Parent = parent
-
-    local hCorner = Instance.new("UICorner")
-    hCorner.CornerRadius = UDim.new(0, 8)
-    hCorner.Parent = headerFrame
-
-    local header = Instance.new("TextLabel")
-    header.Size = UDim2.new(1, -80, 1, 0)
-    header.Position = UDim2.fromOffset(10, 0)
-    header.BackgroundTransparency = 1
-    header.Text = name
-    header.TextColor3 = Colors.Accent
-    header.TextSize = 13
-    header.Font = Enum.Font.GothamBold
-    header.TextXAlignment = Enum.TextXAlignment.Left
-    header.Parent = headerFrame
-
-    -- Кнопка "RESET"
-    local resetBtn = Instance.new("TextButton")
-    resetBtn.Size = UDim2.fromOffset(60, 22)
-    resetBtn.Position = UDim2.new(1, -70, 0.5, -11)
-    resetBtn.BackgroundColor3 = Colors.Panel
-    resetBtn.BorderSizePixel = 0
-    resetBtn.Text = "RESET"
-    resetBtn.TextColor3 = Colors.SubText
-    resetBtn.TextSize = 10
-    resetBtn.Font = Enum.Font.GothamBold
-    resetBtn.AutoButtonColor = false
-    resetBtn.Parent = headerFrame
-
-    local rCorner = Instance.new("UICorner")
-    rCorner.CornerRadius = UDim.new(0, 6)
-    rCorner.Parent = resetBtn
-
-    PS.Connect(resetBtn.MouseButton1Click, function()
-        setR(128)
-        setG(128)
-        setB(128)
+local function ReplaceGrassWithAsphalt()
+    local Terrain = workspace.Terrain
+    local region = Region3.new(
+        Vector3.new(-2048, -100, -2048),
+        Vector3.new(2048, 500, 2048)
+    )
+    pcall(function()
+        Terrain:ReplaceMaterial(region, 4, Enum.Material.Grass, Enum.Material.Asphalt)
     end)
-
-    -- Слайдеры
-    PS.CreateSlider(parent, "  R", y + 35, 0, 255, getR(), function(v) setR(v) end)
-    PS.CreateSlider(parent, "  G", y + 100, 0, 255, getG(), function(v) setG(v) end)
-    PS.CreateSlider(parent, "  B", y + 165, 0, 255, getB(), function(v) setB(v) end)
 end
 
-CreateRGB(WorldPage, "Ambient Color", 320,
-    function() return W.AmbientR end, function(v) W.AmbientR = v end,
-    function() return W.AmbientG end, function(v) W.AmbientG = v end,
-    function() return W.AmbientB end, function(v) W.AmbientB = v end
-)
+PS.CreateToggle(WorldPage, "Remove Grass", 0, W.RemoveGrass, function(v)
+    W.RemoveGrass = v
+    if v then
+        ReplaceGrassWithAsphalt()
+    end
+end)
 
-CreateRGB(WorldPage, "Sky Color", 620,
-    function() return W.SkyR end, function(v) W.SkyR = v end,
-    function() return W.SkyG end, function(v) W.SkyG = v end,
-    function() return W.SkyB end, function(v) W.SkyB = v end
-)
+--//==================================================
+--// RGB СЕКЦИИ
+--//==================================================
 
-CreateRGB(WorldPage, "ColorShift Top", 920,
-    function() return W.CShiftR end, function(v) W.CShiftR = v end,
-    function() return W.CShiftG end, function(v) W.CShiftG = v end,
-    function() return W.CShiftB end, function(v) W.CShiftB = v end
-)
+-- Ambient Color
+PS.CreateSection(WorldPage, "Ambient Color")
+
+PS.CreateSlider(WorldPage, "  R", 0, 0, 255, W.AmbientR, function(v) W.AmbientR = v end)
+PS.CreateSlider(WorldPage, "  G", 0, 0, 255, W.AmbientG, function(v) W.AmbientG = v end)
+PS.CreateSlider(WorldPage, "  B", 0, 0, 255, W.AmbientB, function(v) W.AmbientB = v end)
+
+-- Sky Color
+PS.CreateSection(WorldPage, "Sky Color")
+
+PS.CreateSlider(WorldPage, "  R", 0, 0, 255, W.SkyR, function(v) W.SkyR = v end)
+PS.CreateSlider(WorldPage, "  G", 0, 0, 255, W.SkyG, function(v) W.SkyG = v end)
+PS.CreateSlider(WorldPage, "  B", 0, 0, 255, W.SkyB, function(v) W.SkyB = v end)
+
+-- ColorShift Top
+PS.CreateSection(WorldPage, "ColorShift Top")
+
+PS.CreateSlider(WorldPage, "  R", 0, 0, 255, W.CShiftR, function(v) W.CShiftR = v end)
+PS.CreateSlider(WorldPage, "  G", 0, 0, 255, W.CShiftG, function(v) W.CShiftG = v end)
+PS.CreateSlider(WorldPage, "  B", 0, 0, 255, W.CShiftB, function(v) W.CShiftB = v end)
 
 --//==================================================
 --// ЛОГИКА
@@ -234,17 +175,25 @@ PS.Connect(RunService.RenderStepped, function()
     if W.Fullbright then
         Lighting.Brightness = 3
         Lighting.GlobalShadows = false
+    else
+        Lighting.Brightness = Orig.Brightness
+        Lighting.GlobalShadows = Orig.GlobalShadows
     end
 
     -- TIME LOCK
     if W.TimeLock then
         Lighting.ClockTime = W.Time
+    else
+        Lighting.ClockTime = Orig.ClockTime
     end
 
     -- REMOVE FOG
     if W.RemoveFog then
         Lighting.FogEnd = 100000
         Lighting.FogStart = 0
+    else
+        Lighting.FogEnd = Orig.FogEnd
+        Lighting.FogStart = Orig.FogStart
     end
 
     -- AMBIENT
