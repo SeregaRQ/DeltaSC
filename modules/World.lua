@@ -13,10 +13,7 @@ local Colors = PS.Colors
 local Lighting = PS.Lighting
 local RunService = PS.RunService
 
---//==================================================
 --// НАСТРОЙКИ
---//==================================================
-
 PS.World = PS.World or {}
 local W = PS.World
 
@@ -26,22 +23,19 @@ W.Time        = W.Time or 14
 W.RemoveGrass = W.RemoveGrass or false
 W.RemoveFog   = W.RemoveFog or false
 
-W.AmbientR    = W.AmbientR or 128
-W.AmbientG    = W.AmbientG or 128
-W.AmbientB    = W.AmbientB or 128
+W.AmbientR = W.AmbientR or 128
+W.AmbientG = W.AmbientG or 128
+W.AmbientB = W.AmbientB or 128
 
-W.SkyR        = W.SkyR or 128
-W.SkyG        = W.SkyG or 128
-W.SkyB        = W.SkyB or 128
+W.SkyR = W.SkyR or 128
+W.SkyG = W.SkyG or 128
+W.SkyB = W.SkyB or 128
 
-W.CShiftR     = W.CShiftR or 128
-W.CShiftG     = W.CShiftG or 128
-W.CShiftB     = W.CShiftB or 128
+W.CShiftR = W.CShiftR or 128
+W.CShiftG = W.CShiftG or 128
+W.CShiftB = W.CShiftB or 128
 
---//==================================================
 --// ОРИГИНАЛЫ
---//==================================================
-
 local Orig = {
     Brightness = Lighting.Brightness,
     Ambient = Lighting.Ambient,
@@ -68,17 +62,22 @@ PS.RestoreLighting = function()
     end)
 end
 
---//==================================================
---// ЗАГОЛОВОК
---//==================================================
+--// ЗАГОЛОВОК ВКЛАДКИ
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -10, 0, 28)
+title.BackgroundTransparency = 1
+title.Text = "World"
+title.TextColor3 = Colors.Text
+title.TextSize = 16
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.LayoutOrder = 0
+title.Parent = WorldPage
 
-PS.CreateSection(WorldPage, "Lighting")
+--// SECTION: Lighting
+PS.CreateSection(WorldPage, "Lighting", 10)
 
---//==================================================
---// FULLBRIGHT
---//==================================================
-
-PS.CreateToggle(WorldPage, "Fullbright", 0, W.Fullbright, function(v)
+PS.CreateToggle(WorldPage, "Fullbright", 20, W.Fullbright, function(v)
     W.Fullbright = v
     if not v then
         Lighting.Brightness = Orig.Brightness
@@ -86,30 +85,18 @@ PS.CreateToggle(WorldPage, "Fullbright", 0, W.Fullbright, function(v)
     end
 end)
 
---//==================================================
---// TIME LOCK
---//==================================================
-
-PS.CreateToggle(WorldPage, "Time Lock", 0, W.TimeLock, function(v)
+PS.CreateToggle(WorldPage, "Time Lock", 30, W.TimeLock, function(v)
     W.TimeLock = v
     if not v then
         Lighting.ClockTime = Orig.ClockTime
     end
 end)
 
---//==================================================
---// WORLD TIME
---//==================================================
-
-PS.CreateSlider(WorldPage, "World Time", 0, 1, 24, W.Time, function(v)
+PS.CreateSlider(WorldPage, "World Time", 40, 1, 24, W.Time, function(v)
     W.Time = v
 end)
 
---//==================================================
---// REMOVE FOG
---//==================================================
-
-PS.CreateToggle(WorldPage, "Remove Fog", 0, W.RemoveFog, function(v)
+PS.CreateToggle(WorldPage, "Remove Fog", 50, W.RemoveFog, function(v)
     W.RemoveFog = v
     if not v then
         Lighting.FogEnd = Orig.FogEnd
@@ -117,57 +104,41 @@ PS.CreateToggle(WorldPage, "Remove Fog", 0, W.RemoveFog, function(v)
     end
 end)
 
---//==================================================
---// REMOVE GRASS
---//==================================================
-
-local function ReplaceGrassWithAsphalt()
-    local Terrain = workspace.Terrain
-    local region = Region3.new(
-        Vector3.new(-2048, -100, -2048),
-        Vector3.new(2048, 500, 2048)
-    )
-    pcall(function()
-        Terrain:ReplaceMaterial(region, 4, Enum.Material.Grass, Enum.Material.Asphalt)
-    end)
-end
-
-PS.CreateToggle(WorldPage, "Remove Grass", 0, W.RemoveGrass, function(v)
+PS.CreateToggle(WorldPage, "Remove Grass", 60, W.RemoveGrass, function(v)
     W.RemoveGrass = v
     if v then
-        ReplaceGrassWithAsphalt()
+        pcall(function()
+            local region = Region3.new(
+                Vector3.new(-2048, -100, -2048),
+                Vector3.new(2048, 500, 2048)
+            )
+            workspace.Terrain:ReplaceMaterial(region, 4, Enum.Material.Grass, Enum.Material.Asphalt)
+        end)
     end
 end)
 
---//==================================================
---// RGB СЕКЦИИ
---//==================================================
+--// SECTION: Ambient Color
+PS.CreateSection(WorldPage, "Ambient Color", 100)
 
--- Ambient Color
-PS.CreateSection(WorldPage, "Ambient Color")
+PS.CreateSlider(WorldPage, "  R", 110, 0, 255, W.AmbientR, function(v) W.AmbientR = v end)
+PS.CreateSlider(WorldPage, "  G", 120, 0, 255, W.AmbientG, function(v) W.AmbientG = v end)
+PS.CreateSlider(WorldPage, "  B", 130, 0, 255, W.AmbientB, function(v) W.AmbientB = v end)
 
-PS.CreateSlider(WorldPage, "  R", 0, 0, 255, W.AmbientR, function(v) W.AmbientR = v end)
-PS.CreateSlider(WorldPage, "  G", 0, 0, 255, W.AmbientG, function(v) W.AmbientG = v end)
-PS.CreateSlider(WorldPage, "  B", 0, 0, 255, W.AmbientB, function(v) W.AmbientB = v end)
+--// SECTION: Sky Color
+PS.CreateSection(WorldPage, "Sky Color", 200)
 
--- Sky Color
-PS.CreateSection(WorldPage, "Sky Color")
+PS.CreateSlider(WorldPage, "  R", 210, 0, 255, W.SkyR, function(v) W.SkyR = v end)
+PS.CreateSlider(WorldPage, "  G", 220, 0, 255, W.SkyG, function(v) W.SkyG = v end)
+PS.CreateSlider(WorldPage, "  B", 230, 0, 255, W.SkyB, function(v) W.SkyB = v end)
 
-PS.CreateSlider(WorldPage, "  R", 0, 0, 255, W.SkyR, function(v) W.SkyR = v end)
-PS.CreateSlider(WorldPage, "  G", 0, 0, 255, W.SkyG, function(v) W.SkyG = v end)
-PS.CreateSlider(WorldPage, "  B", 0, 0, 255, W.SkyB, function(v) W.SkyB = v end)
+--// SECTION: ColorShift Top
+PS.CreateSection(WorldPage, "ColorShift Top", 300)
 
--- ColorShift Top
-PS.CreateSection(WorldPage, "ColorShift Top")
+PS.CreateSlider(WorldPage, "  R", 310, 0, 255, W.CShiftR, function(v) W.CShiftR = v end)
+PS.CreateSlider(WorldPage, "  G", 320, 0, 255, W.CShiftG, function(v) W.CShiftG = v end)
+PS.CreateSlider(WorldPage, "  B", 330, 0, 255, W.CShiftB, function(v) W.CShiftB = v end)
 
-PS.CreateSlider(WorldPage, "  R", 0, 0, 255, W.CShiftR, function(v) W.CShiftR = v end)
-PS.CreateSlider(WorldPage, "  G", 0, 0, 255, W.CShiftG, function(v) W.CShiftG = v end)
-PS.CreateSlider(WorldPage, "  B", 0, 0, 255, W.CShiftB, function(v) W.CShiftB = v end)
-
---//==================================================
 --// ЛОГИКА
---//==================================================
-
 PS.Connect(RunService.RenderStepped, function()
     if not PS.Active then return end
 
