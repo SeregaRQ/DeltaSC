@@ -32,6 +32,7 @@ local BASE_URL = "https://raw.githubusercontent.com/SeregaRQ/PotatoProject/main/
 local Modules = {
     "Core",
     "Aim",
+    "Player",
     "Settings",
 }
 
