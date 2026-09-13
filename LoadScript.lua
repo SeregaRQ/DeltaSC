@@ -33,6 +33,7 @@ local Modules = {
     "Core",
     "Aim",
     "Player",
+    "World",
     "Settings",
     "Info",
 }
