@@ -427,26 +427,32 @@ PS.CreatePage("Misc")
 PS.CreatePage("Settings")
 PS.CreatePage("Info")
 
---// SIDEBAR LAYOUT
-local sidebarLayout = Instance.new("UIListLayout")
-sidebarLayout.Padding = UDim.new(0, 6)
-sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
-sidebarLayout.Parent = Sidebar
-
-local sidebarPad = Instance.new("UIPadding")
-sidebarPad.PaddingTop = UDim.new(0, 78)
-sidebarPad.PaddingLeft = UDim.new(0, 10)
-sidebarPad.PaddingRight = UDim.new(0, 10)
-sidebarPad.PaddingBottom = UDim.new(0, 8)
-sidebarPad.Parent = Sidebar
-
---// ВКЛАДКИ SIDEBAR
+--// ВКЛАДКИ SIDEBAR - КОНТЕЙНЕР
 PS.Tabs = {}
+
+local TabsContainer = Instance.new("Frame")
+TabsContainer.Name = "TabsContainer"
+TabsContainer.Size = UDim2.new(1, 0, 0, 230)
+TabsContainer.Position = UDim2.fromOffset(0, 75)
+TabsContainer.BackgroundTransparency = 1
+TabsContainer.BorderSizePixel = 0
+TabsContainer.Parent = Sidebar
+
+local tabLayout = Instance.new("UIListLayout")
+tabLayout.Padding = UDim.new(0, 5)
+tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+tabLayout.Parent = TabsContainer
+
+local tabPad = Instance.new("UIPadding")
+tabPad.PaddingLeft = UDim.new(0, 10)
+tabPad.PaddingRight = UDim.new(0, 10)
+tabPad.Parent = TabsContainer
 
 function PS.CreateTab(name, order)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 35)
-    btn.BackgroundColor3 = Colors.AccentDark
+    btn.Name = name
+    btn.Size = UDim2.new(1, -20, 0, 32)
+    btn.BackgroundColor3 = Colors.Panel
     btn.BackgroundTransparency = 1
     btn.BorderSizePixel = 0
     btn.Text = name
@@ -455,7 +461,7 @@ function PS.CreateTab(name, order)
     btn.Font = Enum.Font.GothamMedium
     btn.AutoButtonColor = false
     btn.LayoutOrder = math.floor(order or 0)
-    btn.Parent = Sidebar
+    btn.Parent = TabsContainer
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 7)
