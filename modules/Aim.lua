@@ -363,7 +363,6 @@ PS.Connect(UserInputService.InputBegan, function(input, processed)
     if processed then return end
     if input.UserInputType == Enum.UserInputType.MouseButton2 then
         AimHolding = true
-        -- Захватываем ближайшую цель в момент зажатия ПКМ
         LockedTarget = GetClosestTarget()
     end
 end)
@@ -383,7 +382,7 @@ PS.Connect(RunService.RenderStepped, function()
     if not PS.Active then return end
     if not A.Enabled or not AimHolding then return end
 
-    -- Если цель ещё жива — держим её
+    -- Проверяем жив ли залоченный таргет
     if LockedTarget then
         local char = LockedTarget.Parent
         local hum = char and char:FindFirstChildOfClass("Humanoid")
@@ -392,7 +391,7 @@ PS.Connect(RunService.RenderStepped, function()
         end
     end
 
-    -- Если цель потеряна — ищем новую
+    -- Если нет цели — ищем новую
     if not LockedTarget then
         LockedTarget = GetClosestTarget()
     end
@@ -401,6 +400,7 @@ PS.Connect(RunService.RenderStepped, function()
 
     local aimPos = LockedTarget.Position
 
+    -- Prediction (опционально)
     if A.Prediction then
         local char = LockedTarget.Parent
         local root = char and char:FindFirstChild("HumanoidRootPart")
@@ -409,9 +409,9 @@ PS.Connect(RunService.RenderStepped, function()
         end
     end
 
+    -- ЖЁСТКО смотрим на цель (мгновенно, без Lerp)
     local camPos = Camera.CFrame.Position
-    local targetCF = CFrame.lookAt(camPos, aimPos)
-    Camera.CFrame = Camera.CFrame:Lerp(targetCF, A.Smooth)
+    Camera.CFrame = CFrame.lookAt(camPos, aimPos)
 end)
 
 --//==================================================
