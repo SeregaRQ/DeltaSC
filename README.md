@@ -8,6 +8,7 @@ Modular Lua application scaffold.
 DeltaSC/
 ├── Main.lua
 └── Modules/
+    ├── GUI.lua       # Loaded first
     ├── Aim.lua
     ├── ESP.lua
     ├── Player.lua
@@ -16,6 +17,8 @@ DeltaSC/
     ├── Settings.lua
     └── Info.lua
 ```
+
+`Main.lua` initializes `GUI.lua` first, waits two seconds, and then initializes the remaining modules.
 
 Run with a Lua interpreter from the repository root:
 
