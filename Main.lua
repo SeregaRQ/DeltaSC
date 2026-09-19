@@ -1,36 +1,37 @@
---// DeltaSC Main
---// Roblox Studio / обычный LocalScript
-
 local Modules = script.Parent:WaitForChild("Modules")
 
-local function loadModule(name)
+local function load(name)
     local module = Modules:WaitForChild(name)
 
-    assert(
-        module:IsA("ModuleScript"),
-        name .. " must be a ModuleScript"
-    )
+    if not module:IsA("ModuleScript") then
+        warn("[DeltaSC] " .. name .. " is not a ModuleScript")
+        return
+    end
 
-    local success, result = pcall(require, module)
+    local ok, result = pcall(require, module)
 
-    if not success then
-        warn("[DeltaSC] Failed to load " .. name .. ": " .. tostring(result))
-        return nil
+    if not ok then
+        warn("[DeltaSC] " .. name .. " failed: " .. tostring(result))
+        return
     end
 
     return result
 end
 
--- GUI MUST LOAD FIRST
-local GUI = loadModule("GUI")
+-- GUI first
+load("GUI")
 
--- Other modules
-local Aim = loadModule("Aim")
-local ESP = loadModule("ESP")
-local Info = loadModule("Info")
-local Misc = loadModule("Misc")
-local Player = loadModule("Player")
-local Settings = loadModule("Settings")
-local World = loadModule("World")
+-- Remaining modules
+for _, name in ipairs({
+    "Aim",
+    "ESP",
+    "Info",
+    "Misc",
+    "Player",
+    "Settings",
+    "World"
+}) do
+    load(name)
+end
 
-print("[DeltaSC] All modules loaded.")
+print("[DeltaSC] Loaded successfully")
